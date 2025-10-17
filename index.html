@@ -132,9 +132,11 @@
                 </div>
                 <nav class="nav-actions nav-desktop" id="primary-controls">
                     <button id="fetch-btn" class="header-control bg-amber-400 text-gray-900 font-bold hover:bg-amber-500 transition-colors duration-200">Update Listings</button>
-                    <button id="clear-cache-btn" class="header-control bg-gray-700 text-white font-semibold hover:bg-red-600 transition-colors duration-200 ml-3">Clear Cache</button>
+                    <button id="clear-cache-btn" class="header-control bg-gray-700 text-white font-semibold hover:bg-red-600 transition-colors duration-200 ml-3">Clear</button>
                     <div id="last-updated" class="text-sm text-gray-300 ml-4">Updated: -</div>
-                    <a href="#filters-panel" id="nav-filters-desktop" class="header-control bg-gray-800 text-gray-200 text-sm ml-4 hover:bg-gray-700">Filters</a>
+                    <a href="#" id="nav-filters-desktop" class="header-control bg-gray-800 text-gray-200 text-sm ml-4 hover:bg-gray-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+                    </a>
                 </nav>
             </div>
         </header>
@@ -212,8 +214,8 @@
         
         <div class="mt-6 space-y-4">
             <div id="time-filter" class="filter-toggle-group grid grid-cols-2 md:grid-cols-4 gap-2"></div>
-            <div id="quick-date-filter" class="filter-toggle-group grid grid-cols-3 md:grid-cols-5 gap-2"></div>
-            <div class="flex items-center justify-between gap-4 pt-4 mt-4 border-t border-gray-700/50">
+            <div id="quick-date-filter" class="filter-toggle-group grid grid-cols-3 md:grid-cols-6 gap-2"></div>
+            <div class="flex flex-wrap items-center justify-between gap-4 pt-4 mt-4 border-t border-gray-700/50">
                 <div class="flex items-center gap-4">
                     <div class="flex items-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
@@ -255,7 +257,7 @@
             <div class="overflow-y-auto p-4">
                 <div class="grid grid-cols-2 gap-4 mb-6">
                      <button id="mobile-fetch-btn" class="header-control bg-amber-400 text-gray-900 font-bold hover:bg-amber-500 justify-center">Update Listings</button>
-                    <button id="mobile-clear-cache-btn" class="header-control bg-gray-700 text-white font-semibold hover:bg-red-600 justify-center">Clear Cache</button>
+                    <button id="mobile-clear-cache-btn" class="header-control bg-gray-700 text-white font-semibold hover:bg-red-600 justify-center">Clear</button>
                 </div>
                 <div id="mobile-filters-mount"></div>
             </div>
@@ -347,18 +349,11 @@ document.addEventListener('DOMContentLoaded', () => {
         setupMobileNav();
     }
 
-    function scrollToFilters() {
-        const anchor = document.getElementById('filters-anchor');
-        const panel = elements.filtersPanel;
-        if (!anchor || !panel) return;
-        panel.classList.remove('hidden');
-        const header = document.querySelector('.site-header');
-        const headerRect = header ? header.getBoundingClientRect() : { height: 72 };
-        const top = anchor.getBoundingClientRect().top + window.pageYOffset - (headerRect.height + 8);
-        window.scrollTo({ top, behavior: 'smooth' });
+    function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    document.getElementById('nav-filters-desktop')?.addEventListener('click', (e) => { e.preventDefault(); scrollToFilters(); });
+    document.getElementById('nav-filters-desktop')?.addEventListener('click', (e) => { e.preventDefault(); scrollToTop(); });
     document.getElementById('load-yorck-data')?.addEventListener('click', (e) => { e.preventDefault(); document.getElementById('fetch-btn').click(); if (document.getElementById('initial-cta')) document.getElementById('initial-cta').style.display = 'none'; });
 
     function setupImageObserver() {
@@ -412,7 +407,7 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.timeFilterContainer.innerHTML = createRadioGroup([{ value: 'all', label: 'All Day' }, { value: 'morning', label: 'Morning (til 12:00)' }, { value: 'afternoon', label: 'Afternoon (12-17:00)' }, { value: 'evening', label: 'Evening (from 17:00)' }], 'time');
         const quickDateContainer = document.getElementById('quick-date-filter');
         if (quickDateContainer) {
-            quickDateContainer.innerHTML = createRadioGroup([{ value: 'all', label: 'All' }, { value: 'today', label: 'Today' }, { value: 'tomorrow', label: 'Tomorrow' }, { value: 'this_week', label: 'This Week' }, { value: 'next_week', label: 'Next Week' }], 'quickDate');
+            quickDateContainer.innerHTML = createRadioGroup([{ value: 'all', label: 'All' }, { value: 'today', label: 'Today' }, { value: 'tomorrow', label: 'Tomorrow' }, { value: 'this_week', label: 'This Week' }, { value: 'next_week', label: 'Next Week' }, { value: 'future', label: 'Future' }], 'quickDate');
             quickDateContainer.addEventListener('change', renderFilteredResults);
         }
         
@@ -475,7 +470,7 @@ document.addEventListener('DOMContentLoaded', () => {
         state.currentlyFilteredSessions = state.allSessions.filter(item => {
             const sessionTime = new Date(item.session.startTime); const sessionHour = sessionTime.getHours(); const itemFormats = item.session.formats || []; const itemGenre = item.film.mainLabel; const allVersionFilters = [...filters.versions, ...filters.specials];
             const inQuickRange = (() => {
-                const q = filters.quickDate; if (q === 'all') return true; const dayStart = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate()); const today = dayStart(new Date()); const sessionDay = dayStart(sessionTime); if (q === 'today') return sessionDay.getTime() === today.getTime(); if (q === 'tomorrow') { const t = new Date(today); t.setDate(t.getDate() + 1); return sessionDay.getTime() === t.getTime(); } const getWeekRange = (base, weekOffset = 0) => { const d = new Date(base); d.setDate(d.getDate() + weekOffset * 7); const day = d.getDay(); const monday = new Date(d); monday.setDate(d.getDate() - ((day + 6) % 7)); monday.setHours(0,0,0,0); const sunday = new Date(monday); sunday.setDate(monday.getDate() + 6); sunday.setHours(23,59,59,999); return { start: monday, end: sunday }; }; if (q === 'this_week') { const range = getWeekRange(new Date(), 0); return sessionTime >= range.start && sessionTime <= range.end; } if (q === 'next_week') { const range = getWeekRange(new Date(), 1); return sessionTime >= range.start && sessionTime <= range.end; } return true;
+                const q = filters.quickDate; if (q === 'all') return true; const dayStart = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate()); const today = dayStart(new Date()); const sessionDay = dayStart(sessionTime); if (q === 'today') return sessionDay.getTime() === today.getTime(); if (q === 'tomorrow') { const t = new Date(today); t.setDate(t.getDate() + 1); return sessionDay.getTime() === t.getTime(); } const getWeekRange = (base, weekOffset = 0) => { const d = new Date(base); d.setDate(d.getDate() + weekOffset * 7); const day = d.getDay(); const monday = new Date(d); monday.setDate(d.getDate() - ((day + 6) % 7)); monday.setHours(0,0,0,0); const sunday = new Date(monday); sunday.setDate(monday.getDate() + 6); sunday.setHours(23,59,59,999); return { start: monday, end: sunday }; }; if (q === 'this_week') { const range = getWeekRange(new Date(), 0); return sessionTime >= range.start && sessionTime <= range.end; } if (q === 'next_week') { const range = getWeekRange(new Date(), 1); return sessionTime >= range.start && sessionTime <= range.end; } if (q === 'future') { const range = getWeekRange(new Date(), 1); return sessionTime > range.end; } return true;
             })();
             if (!inQuickRange) return false;
             return ((filters.titles.length === 0 || filters.titles.includes(item.film.title)) && (filters.cinema.includes('all') || filters.cinema.includes(item.cinema.name.trim())) && (filters.genres.length === 0 || (itemGenre && filters.genres.includes(itemGenre))) && (allVersionFilters.length === 0 || itemFormats.some(v => allVersionFilters.includes(v))) && !((filters.time === 'morning' && sessionHour >= 12) || (filters.time === 'afternoon' && (sessionHour < 12 || sessionHour >= 17)) || (filters.time === 'evening' && sessionHour < 17)));
@@ -507,7 +502,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const desktopContainer = document.getElementById('main-filters-container');
         const mobileMount = document.getElementById('mobile-filters-mount');
         if (!filtersPanel || !desktopContainer || !mobileMount) return;
-        if (window.innerWidth < 1024) { // Switched to lg breakpoint
+        if (window.innerWidth < 1023) { // Switched to lg breakpoint
             if (!mobileMount.contains(filtersPanel)) mobileMount.appendChild(filtersPanel);
         } else {
             if (!desktopContainer.contains(filtersPanel)) desktopContainer.appendChild(filtersPanel);
