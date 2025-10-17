@@ -3,7 +3,6 @@
 A modern, filterable, and user-friendly interface for browsing the Yorck Kinos cinema program in Berlin. This tool scrapes data directly from the official website and presents it in a powerful, single-page application that makes finding the perfect movie screening fast and intuitive.
 
 ![Yorck Kino Search Screenshot](screenshot.png)
-_Recommendation: Replace the placeholder link above with a screenshot of your application's interface._
 
 ## ✨ About the Project
 
