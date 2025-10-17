@@ -207,7 +207,7 @@
                     <button id="specialsDropdownButton" type="button" class="w-full text-left form-element" aria-expanded="false">All Specials</button>
                     <div id="specialsDropdown" class="dropdown-panel hidden bg-gray-800 rounded-md shadow-lg w-full border border-gray-700">
                         <div class="p-2 flex justify-end border-b border-gray-700"><button id="specials-clear-selection" class="text-sm text-amber-400 font-semibold hover:text-amber-300 disabled:text-gray-500">Clear</button></div>
-                        <ul id="specials-list" class="max-h-60 overflow-y-auto text-sm text-gray-200 p-2 space-y-1"></ul>
+                        <ul id="specials-list" class="max-h-72 overflow-y-auto text-sm text-gray-200 p-2 space-y-1"></ul>
                     </div>
                 </div>
             </div>
@@ -374,9 +374,51 @@ document.addEventListener('DOMContentLoaded', () => {
         }, { rootMargin: "300px 0px" });
     }
 
+    async function fetchFilmDetails(filmSlug) {
+        try {
+            const filmUrl = `${CORS_PROXY}${encodeURIComponent(`https://www.yorck.de/en/films/${filmSlug}`)}`;
+            const response = await fetch(filmUrl);
+            if (!response.ok) return null;
+            
+            const htmlText = await response.text();
+            const doc = new DOMParser().parseFromString(htmlText, 'text/html');
+            
+            const nextDataScript = doc.getElementById('__NEXT_DATA__');
+            if (!nextDataScript) {
+                console.warn(`__NEXT_DATA__ script not found for ${filmSlug}`);
+                return null;
+            }
+            
+            const jsonData = JSON.parse(nextDataScript.textContent);
+            const filmData = jsonData?.props?.pageProps?.film?.fields;
+            
+            if (!filmData) {
+                console.warn(`Film data structure not found in JSON for ${filmSlug}`);
+                return null;
+            }
+
+            const details = {
+                longDescription: filmData.about ? filmData.about.replace(/<\/?p>/g, '') : (filmData.tagline || ''),
+                director: filmData.director,
+                fullCast: filmData.cast,
+                country: filmData.countries ? filmData.countries.join(', ') : '',
+                year: filmData.year,
+                writers: filmData.writer,
+                originalLanguage: filmData.originalLanguage
+            };
+
+            return details;
+        } catch (error) {
+            console.warn(`Failed to fetch and parse details for ${filmSlug}:`, error);
+            return null;
+        }
+    }
+
+
     async function handleFetchAll() {
-        showStatus('', 'loading');
+        showStatus('Fetching film listings...', 'loading');
         if (elements.fetchBtn) { elements.fetchBtn.disabled = true; elements.fetchBtn.textContent = 'Updating...'; }
+        
         try {
             const response = await fetch(`${CORS_PROXY}${encodeURIComponent(YORCK_PROGRAM_URL)}`);
             if (!response.ok) throw new Error(`Network error: ${response.status}`);
@@ -384,14 +426,36 @@ document.addEventListener('DOMContentLoaded', () => {
             const doc = new DOMParser().parseFromString(htmlText, 'text/html');
             const films = JSON.parse(doc.getElementById('__NEXT_DATA__').textContent).props.pageProps.films;
             if (!films) throw new Error('Scraping failed: Film data missing.');
+
+            const uniqueFilms = Object.values(films.reduce((acc, film) => {
+                if (film.fields.slug && !acc[film.fields.slug]) acc[film.fields.slug] = film;
+                return acc;
+            }, {}));
+            
+            const detailPromises = uniqueFilms.map((film, index) => {
+                showStatus(`Fetching details for ${film.fields.title} (${index + 1}/${uniqueFilms.length})...`, 'loading');
+                return fetchFilmDetails(film.fields.slug);
+            });
+
+            const allDetails = await Promise.all(detailPromises);
+            const detailsMap = new Map(uniqueFilms.map((film, i) => [film.fields.slug, allDetails[i]]));
+
+            films.forEach(film => {
+                const details = detailsMap.get(film.fields.slug);
+                if (details) film.fields.extraDetails = details;
+            });
+
             localStorage.setItem('yorckData', JSON.stringify({ films, timestamp: new Date().toISOString() }));
             processRawData(films);
+            
             if (elements.lastUpdatedEl) elements.lastUpdatedEl.textContent = `Updated: ${formatTimestamp(new Date().toISOString())}`;
             showStatus('Listings updated successfully!', 'success');
             setTimeout(() => elements.statusContainer.innerHTML = '', 3000);
+            
             setupFilters();
             if (elements.filtersPanel) elements.filtersPanel.classList.remove('hidden');
             renderFilteredResults();
+
         } catch (error) {
             console.error('Error fetching data:', error);
             showStatus(`Failed to update listings. Error: ${error.message}`, 'error');
@@ -399,6 +463,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (elements.fetchBtn) { elements.fetchBtn.disabled = false; elements.fetchBtn.textContent = 'Update Listings'; }
         }
     }
+
 
     function formatTimestamp(isoString) { try { const d = new Date(isoString); const pad = n => String(n).padStart(2, '0'); return `${d.getFullYear()}.${pad(d.getMonth()+1)}.${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`; } catch (e) { return isoString; } }
     function processRawData(films) { state.allSessions = films.flatMap(film => (film.fields.sessions || []).map(sessionRef => ({ film: film.fields, session: sessionRef.fields, cinema: sessionRef.fields.cinema?.fields })).filter(item => item.cinema)); }
@@ -451,7 +516,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
             const searchInput = searchId ? document.getElementById(searchId) : null;
-            if (searchInput) searchInput.addEventListener('input', (e) => { const q = e.target.value.toLowerCase(); list.querySelectorAll('li').forEach(li => { li.style.display = li.innerText.toLowerCase().includes(q) ? '' : 'none'; }); });
+            if (searchInput) {
+                 searchInput.addEventListener('input', (e) => { 
+                    const query = e.target.value.toLowerCase();
+                    const listItems = list.querySelectorAll('li');
+                    listItems.forEach(li => {
+                       const label = li.querySelector('label');
+                       if (label) {
+                           const text = label.textContent.toLowerCase();
+                           li.style.display = text.includes(query) ? '' : 'none';
+                       }
+                    });
+                });
+            }
             button.addEventListener('click', (e) => { e.stopPropagation(); dropdown.classList.toggle('hidden'); if(searchInput) searchInput.focus(); });
             syncSelection();
         };
@@ -483,14 +560,79 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function createShowtimeButtons(sessions, indexMap) { return sessions.sort((a, b) => new Date(a.session.startTime) - new Date(b.session.startTime)).map(item => { const time = new Date(item.session.startTime); const format = (item.session.formats || [])[0]; const color = COLOR_MAP[format]?.bg || COLOR_MAP['default'].border; return `<button class="showtime-btn border-gray-700 bg-gray-900/50 rounded-lg p-2 text-center w-24" style="border-color:${color}" data-session-index="${indexMap.get(item)}"><span class="font-bold text-lg">${time.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</span><span class="block text-xs text-gray-400">${(item.session.formats || []).join(', ')}</span></button>`; }).join(''); }
-    const createFilmEntryHTML = (film, sessions, indexMap) => { const posterUrl = film.heroImage?.fields?.image?.fields?.file?.url ? `https:${film.heroImage.fields.image.fields.file.url}` : 'https://via.placeholder.com/320x180.png?text=No+Image'; const filmUrl = `https://www.yorck.de/en/films/${film.slug}`; const details = [film.mainLabel, film.runtime ? `${film.runtime} min` : null, film.fsk !== null ? `FSK ${film.fsk}` : null].filter(Boolean).join(' | '); return `<div class="flex flex-col sm:flex-row gap-4 py-4 border-b border-gray-700 last:border-b-0"><a href="${filmUrl}" target="_blank" rel="noopener noreferrer" class="flex-shrink-0 w-full sm:w-64 aspect-video"><div class="lazy-load-placeholder" data-src="${posterUrl}" data-alt="${film.title} Poster"></div></a><div class="flex-grow"><a href="${filmUrl}" target="_blank" rel="noopener noreferrer" class="hover:underline"><h5 class="text-lg font-bold text-white">${film.title}</h5></a><p class="text-sm text-gray-400 mt-1 italic">${film.tagline || ''}</p><p class="text-xs text-gray-300 font-medium mt-2">${details}</p><div class="flex flex-wrap gap-2 mt-3">${createShowtimeButtons(sessions, indexMap)}</div></div></div>`; };
-    const renderGroupedBy = (sessions, primaryKeyFn, secondaryKeyFn, primaryHeaderFn, secondaryHeaderFn) => { const indexMap = new Map(sessions.map((s, i) => [s, i])); const groupedPrimary = sessions.reduce((acc, item) => { (acc[primaryKeyFn(item)] = acc[primaryKeyFn(item)] || []).push(item); return acc; }, {}); const html = Object.keys(groupedPrimary).sort().map(primaryKey => { const secondaryHTML = Object.entries(groupedPrimary[primaryKey].reduce((acc, item) => { (acc[secondaryKeyFn(item)] = acc[secondaryKeyFn(item)] || []).push(item); return acc; }, {})).sort(([a], [b]) => a.localeCompare(b)).map(([secondaryKey, secondaryItems]) => { const filmsHTML = Object.values(secondaryItems.reduce((acc, item) => { if (!acc[item.film.title]) acc[item.film.title] = { film: item.film, sessions: [] }; acc[item.film.title].sessions.push(item); return acc; }, {})).sort((a,b) => a.film.title.localeCompare(b.film.title)).map(({film, sessions}) => createFilmEntryHTML(film, sessions, indexMap)).join(''); return `<div class="glass-panel p-4 mb-4">${secondaryHeaderFn(secondaryKey)}${filmsHTML}</div>`; }).join(''); return primaryHeaderFn(primaryKey) + secondaryHTML; }).join(''); elements.resultsContainer.innerHTML = html; };
+    
+    const createFilmHeaderHTML = (film) => {
+        const posterUrl = film.heroImage?.fields?.image?.fields?.file?.url ? `https:${film.heroImage.fields.image.fields.file.url}` : 'https://via.placeholder.com/320x180.png?text=No+Image';
+        const filmUrl = `https://www.yorck.de/en/films/${film.slug}`;
+        const extraDetails = film.extraDetails || {};
+        
+        const renderDetailBox = (label, value) => {
+            if (!value) return '';
+            return `<div class="bg-gray-800/50 p-2 rounded-md flex flex-col items-center justify-center">
+                        <strong class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">${label}</strong>
+                        <span class="text-sm">${value}</span>
+                    </div>`;
+        };
+        
+        return `
+            <div class="flex flex-col sm:flex-row gap-6">
+                <a href="${filmUrl}" target="_blank" rel="noopener noreferrer" class="flex-shrink-0 w-full aspect-video sm:w-72 md:w-1/3 sm:aspect-[3/2]">
+                    <div class="lazy-load-placeholder" data-src="${posterUrl}" data-alt="${film.title} Poster"></div>
+                </a>
+                <div class="flex-grow flex flex-col">
+                    <a href="${filmUrl}" target="_blank" rel="noopener noreferrer" class="hover:underline">
+                        <h3 class="text-2xl font-semibold text-white">${film.title}</h3>
+                    </a>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3 mb-4">
+                       ${renderDetailBox('Year', extraDetails.year)}
+                       ${renderDetailBox('Runtime', film.runtime ? `${film.runtime} min` : null)}
+                       ${renderDetailBox('Country', extraDetails.country)}
+                       ${renderDetailBox('Language', extraDetails.originalLanguage)}
+                    </div>
+                    <p class="text-sm text-gray-300 mb-4">${extraDetails.longDescription || film.tagline || ''}</p>
+                    <div class="space-y-3 text-sm mt-auto">
+                        <div><strong class="font-semibold text-gray-400 block w-24 inline-block">Director:</strong> ${extraDetails.director || 'N/A'}</div>
+                        <div><strong class="font-semibold text-gray-400 block w-24 inline-block">Cast:</strong> ${extraDetails.fullCast || 'N/A'}</div>
+                        <div><strong class="font-semibold text-gray-400 block w-24 inline-block">Writer:</strong> ${extraDetails.writers || 'N/A'}</div>
+                    </div>
+                </div>
+            </div>`;
+    };
+
+    const renderGroupedBy = (sessions, primaryKeyFn, secondaryKeyFn, primaryHeaderFn, secondaryHeaderFn) => {
+        const indexMap = new Map(sessions.map((s, i) => [s, i]));
+        const groupedPrimary = sessions.reduce((acc, item) => { (acc[primaryKeyFn(item)] = acc[primaryKeyFn(item)] || []).push(item); return acc; }, {});
+        const html = Object.keys(groupedPrimary).sort().map(primaryKey => {
+            const secondaryHTML = Object.entries(groupedPrimary[primaryKey].reduce((acc, item) => { (acc[secondaryKeyFn(item)] = acc[secondaryKeyFn(item)] || []).push(item); return acc; }, {})).sort(([a], [b]) => a.localeCompare(b)).map(([secondaryKey, secondaryItems]) => {
+                const filmsHTML = Object.values(secondaryItems.reduce((acc, item) => {
+                    if (!acc[item.film.title]) acc[item.film.title] = { film: item.film, sessions: [] };
+                    acc[item.film.title].sessions.push(item);
+                    return acc;
+                }, {})).sort((a,b) => a.film.title.localeCompare(b.film.title)).map(({film, sessions}) => {
+                    const header = createFilmHeaderHTML(film);
+                    const showtimes = createShowtimeButtons(sessions, indexMap);
+                    return `
+                        <div class="py-4 border-b border-gray-700 last:border-b-0">
+                            ${header}
+                            <div class="flex flex-wrap gap-2 mt-4">${showtimes}</div>
+                        </div>
+                    `;
+                }).join('');
+                return `<div class="glass-panel p-4 mb-4">${secondaryHeaderFn(secondaryKey)}${filmsHTML}</div>`;
+            }).join('');
+            return primaryHeaderFn(primaryKey) + secondaryHTML;
+        }).join('');
+        elements.resultsContainer.innerHTML = html;
+    };
+
     const dateHeader = date => `<h3 class="text-2xl font-semibold text-white border-b-2 border-amber-400 pb-2 mb-6 mt-8">${new Date(date + 'T00:00:00Z').toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })}</h3>`;
     const cinemaHeader = name => `<h3 class="text-2xl font-semibold text-white border-b-2 border-amber-400 pb-2 mb-6 mt-8">${name}</h3>`;
     const cinemaSubHeader = name => `<h4 class="text-xl font-bold text-amber-400 mb-4">${name}</h4>`;
     const dateSubHeader = date => `<h4 class="text-xl font-bold text-amber-400 mb-4">${new Date(date + 'T00:00:00Z').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'UTC' })}</h4>`;
+    
     const renderGroupedByDate = s => renderGroupedBy(s, i => i.session.startTime.split('T')[0], i => i.cinema.name.trim(), dateHeader, cinemaSubHeader);
     const renderGroupedByCinema = s => renderGroupedBy(s, i => i.cinema.name.trim(), i => i.session.startTime.split('T')[0], cinemaHeader, dateSubHeader);
+
     function renderGroupedByFilm(sessions) {
         const indexMap = new Map(sessions.map((s, i) => [s, i]));
         const groupedByFilm = sessions.reduce((acc, item) => {
@@ -501,21 +643,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const html = Object.keys(groupedByFilm).sort().map(filmTitle => {
             const filmSessions = groupedByFilm[filmTitle];
             const filmData = filmSessions[0].film;
-            const posterUrl = filmData.heroImage?.fields?.image?.fields?.file?.url ? `https:${filmData.heroImage.fields.image.fields.file.url}` : 'https://via.placeholder.com/320x180.png?text=No+Image';
-            const details = [filmData.mainLabel, filmData.runtime ? `${filmData.runtime} min` : null, filmData.fsk !== null ? `FSK ${filmData.fsk}` : null].filter(Boolean).join(' | ');
             
-            let filmHTML = `<div class="flex flex-col sm:flex-row gap-4 py-4 border-b-2 border-amber-400 mt-8">
-                <a href="https://www.yorck.de/en/films/${filmData.slug}" target="_blank" rel="noopener noreferrer" class="flex-shrink-0 w-full sm:w-64 aspect-video">
-                    <div class="lazy-load-placeholder" data-src="${posterUrl}" data-alt="${filmTitle} Poster"></div>
-                </a>
-                <div class="flex-grow">
-                    <a href="https://www.yorck.de/en/films/${filmData.slug}" target="_blank" rel="noopener noreferrer" class="hover:underline">
-                        <h3 class="text-2xl font-semibold text-white">${filmTitle}</h3>
-                    </a>
-                    <p class="text-sm text-gray-400 mt-1 italic">${filmData.tagline || ''}</p>
-                    <p class="text-xs text-gray-300 font-medium mt-2">${details}</p>
-                </div>
-            </div>`;
+            let filmHTML = `<div class="border-b-2 border-amber-400 mt-8 py-4">${createFilmHeaderHTML(filmData)}</div>`;
     
             const groupedByDate = filmSessions.reduce((acc, item) => {
                 const date = item.session.startTime.split('T')[0];
@@ -553,9 +682,50 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.resultsContainer.innerHTML = html;
     }
     function handleShowtimeClick(e) { const btn = e.target.closest('.showtime-btn'); if (!btn || !btn.dataset.sessionIndex) return; const item = state.currentlyFilteredSessions[parseInt(btn.dataset.sessionIndex, 10)]; if (!item) { console.error('Session data not found'); return; } downloadIcsFile(generateIcsContent(item.film, item.session, item.cinema.name), item.film.slug, item.session.startTime); }
-    function generateIcsContent(film, session, cinemaName) { const startDate = new Date(session.startTime); const endDate = new Date(startDate.getTime() + (film.runtime || 90) * 60000); const now = new Date(); const emoji = elements.emojiInput.value || '🍿'; const formatIcsDate = (date) => date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z'; const formatIcsDateWithTZ = (date) => { const pad = (n) => String(n).padStart(2, '0'); return `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}T${pad(date.getHours())}${pad(date.getMinutes())}${pad(date.getSeconds())}`; }; const escapeIcsText = (text) => (text || '').replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n'); const description = `Synopsis: ${escapeIcsText(film.tagline)}\\n\\nRuntime: ${film.runtime || 'N/A'} min\\nVersion: ${(session.formats || []).join(', ')}`; const filmUrl = `https://www.yorck.de/en/films/${film.slug}`; const vTimezone = ['BEGIN:VTIMEZONE', 'TZID:Europe/Berlin', 'BEGIN:DAYLIGHT', 'TZOFFSETFROM:+0100', 'TZOFFSETTO:+0200', 'TZNAME:CEST', 'DTSTART:19700329T020000', 'RRULE:FREQ=YEARLY;BYDAY=-1SU;BYMONTH=3', 'END:DAYLIGHT', 'BEGIN:STANDARD', 'TZOFFSETFROM:+0200', 'TZOFFSETTO:+0100', 'TZNAME:CET', 'DTSTART:19701025T030000', 'RRULE:FREQ=YEARLY;BYDAY=-1SU;BYMONTH=10', 'END:STANDARD', 'END:VTIMEZONE'].join('\r\n'); return ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//YorckPlanner//NONSGML v2.3//EN', vTimezone, 'BEGIN:VEVENT', `UID:${now.getTime()}-${film.vistaId}@yorck.de`, `DTSTAMP:${formatIcsDate(now)}`, `DTSTART;TZID=Europe/Berlin:${formatIcsDateWithTZ(startDate)}`, `DTEND;TZID=Europe/Berlin:${formatIcsDateWithTZ(endDate)}`, `SUMMARY:${escapeIcsText(`${emoji} ${film.title}`)}`, `DESCRIPTION:${description}`, `LOCATION:${escapeIcsText(cinemaName)}`, `URL;VALUE=URI:${filmUrl}`, 'END:VEVENT', 'END:VCALENDAR'].join('\r\n'); }
+    
+    function generateIcsContent(film, session, cinemaName) {
+        const startDate = new Date(session.startTime);
+        const endDate = new Date(startDate.getTime() + (film.runtime || 90) * 60000);
+        const now = new Date();
+        const emoji = elements.emojiInput.value || '🍿';
+        const extra = film.extraDetails || {};
+        
+        const formatIcsDate = (date) => date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+        const formatIcsDateWithTZ = (date) => { const pad = (n) => String(n).padStart(2, '0'); return `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}T${pad(date.getHours())}${pad(date.getMinutes())}${pad(date.getSeconds())}`; };
+        const escapeIcsText = (text) => String(text || '').replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n');
+
+        const filmUrl = `https://www.yorck.de/en/films/${film.slug}`;
+
+        let description = `Synopsis: ${escapeIcsText(extra.longDescription || film.tagline)}\\n\\n`;
+        if (extra.director) description += `Director: ${escapeIcsText(extra.director)}\\n`;
+        if (extra.writers) description += `Writer: ${escapeIcsText(extra.writers)}\\n`;
+        if (extra.fullCast) description += `Cast: ${escapeIcsText(extra.fullCast)}\\n`;
+        if (extra.country) description += `Country: ${escapeIcsText(extra.country)}\\n`;
+        if (extra.year) description += `Year: ${escapeIcsText(extra.year)}\\n`;
+        if (extra.originalLanguage) description += `Original Language: ${escapeIcsText(extra.originalLanguage)}\\n`;
+        description += `Runtime: ${film.runtime || 'N/A'} min\\n`;
+        description += `Version: ${(session.formats || []).join(', ')}\\n\\n`;
+        description += `More Info: ${filmUrl}`;
+
+        const vTimezone = ['BEGIN:VTIMEZONE', 'TZID:Europe/Berlin', 'BEGIN:DAYLIGHT', 'TZOFFSETFROM:+0100', 'TZOFFSETTO:+0200', 'TZNAME:CEST', 'DTSTART:19700329T020000', 'RRULE:FREQ=YEARLY;BYDAY=-1SU;BYMONTH=3', 'END:DAYLIGHT', 'BEGIN:STANDARD', 'TZOFFSETFROM:+0200', 'TZOFFSETTO:+0100', 'TZNAME:CET', 'DTSTART:19701025T030000', 'RRULE:FREQ=YEARLY;BYDAY=-1SU;BYMONTH=10', 'END:STANDARD', 'END:VTIMEZONE'].join('\r\n');
+        return ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//YorckPlanner//NONSGML v2.3//EN', vTimezone, 'BEGIN:VEVENT', `UID:${now.getTime()}-${film.vistaId || film.slug}@yorck.de`, `DTSTAMP:${formatIcsDate(now)}`, `DTSTART;TZID=Europe/Berlin:${formatIcsDateWithTZ(startDate)}`, `DTEND;TZID=Europe/Berlin:${formatIcsDateWithTZ(endDate)}`, `SUMMARY:${escapeIcsText(`${emoji} ${film.title}`)}`, `DESCRIPTION:${description}`, `LOCATION:${escapeIcsText(cinemaName)}`, `URL;VALUE=URI:${filmUrl}`, 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+    }
     function downloadIcsFile(content, filmSlug, startTime) { const date = new Date(startTime); const [y, m, d, h, min] = [date.getFullYear(), String(date.getMonth() + 1).padStart(2, '0'), String(date.getDate()).padStart(2, '0'), String(date.getHours()).padStart(2, '0'), String(date.getMinutes()).padStart(2, '0')]; const safeSlug = (filmSlug || 'film').replace(/[^a-z0-9]/gi, '-').toLowerCase(); const filename = `${y}-${m}-${d}-${h}${min}-${safeSlug}.ics`; const blob = new Blob([content], { type: 'text/calendar;charset=utf-8' }); const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = filename; document.body.appendChild(link); link.click(); document.body.removeChild(link); URL.revokeObjectURL(link.href); }
-    function showStatus(message, type = 'info') { elements.statusContainer.innerHTML = ''; if (!message && type !== 'loading') return; const colors = { error: 'text-red-400 bg-red-900/50', success: 'text-green-300 bg-green-900/50', info: 'text-blue-300 bg-blue-900/50' }; elements.statusContainer.innerHTML = type === 'loading' ? `<div class="loader mx-auto"></div>` : `<p class="${colors[type]} p-3 rounded-lg">${message}</p>`; }
+    function showStatus(message, type = 'info') {
+        elements.statusContainer.innerHTML = '';
+        if (!message && type !== 'loading') return;
+        const colors = { error: 'text-red-400 bg-red-900/50', success: 'text-green-300 bg-green-900/50', info: 'text-blue-300 bg-blue-900/50', loading: 'text-amber-300' };
+        let content = '';
+        if (type === 'loading') {
+            content = `<div class="flex items-center justify-center gap-4">
+                <div class="loader"></div>
+                <span class="${colors.loading}">${message}</span>
+            </div>`;
+        } else {
+            content = `<p class="${colors[type]} p-3 rounded-lg">${message}</p>`;
+        }
+        elements.statusContainer.innerHTML = content;
+    }
     function debounce(func, delay) { let timeout; return function(...args) { clearTimeout(timeout); timeout = setTimeout(() => func.apply(this, args), delay); }; }
     
     function manageFilterPanelLayout() {
