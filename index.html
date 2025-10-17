@@ -19,16 +19,18 @@
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
-            background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.07) 1px, transparent 0);
-            background-size: 2rem 2rem;
+            background-image: url('https://images.pexels.com/photos/1528640/pexels-photo-1528640.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260');
+            background-size: cover;
+            background-position: center center;
+            background-attachment: fixed;
         }
         html, body {
             overflow-x: clip;
         }
         .glass-panel {
             background-color: var(--card-bg-color);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--border-color);
             border-radius: 0.75rem;
             box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
@@ -88,10 +90,18 @@
             width: 100%;
             height: 100%;
         }
-        .site-header { position: sticky; top: 0; z-index: 40; padding-top: env(safe-area-inset-top); }
+        .site-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 40;
+            padding-top: env(safe-area-inset-top);
+            transition: height 0.3s ease-in-out;
+        }
         .nav-bar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
         .nav-actions { display: flex; gap: 0.5rem; align-items: center; }
-        .header-control { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.5rem 0.75rem; height: 44px; white-space: nowrap; border-radius: 0.5rem; }
+        .header-control { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.5rem 0.75rem; height: 44px; white-space: nowrap; border-radius: 0.5rem; transition: background-color 0.2s, color 0.2s; }
         .header-control .form-element { height: 36px; padding: 0 0.5rem; }
         .nav-bar { flex-wrap: nowrap; }
         .dropdown-panel { position: absolute; left: 0; right: 0; top: 100%; margin-top: 0.25rem; z-index: 100; }
@@ -99,6 +109,66 @@
         ::-webkit-scrollbar-track { background: var(--bg-color); }
         ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #4b5563; }
+
+        .tag-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: white;
+            transition: all 0.2s;
+        }
+        .tag-pill button {
+            margin-left: 0.5rem;
+            background: rgba(0,0,0,0.2);
+            border-radius: 50%;
+            width: 1.25rem;
+            height: 1.25rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            border: none;
+            cursor: pointer;
+            line-height: 1;
+        }
+        .tag-pill button:hover {
+            background: rgba(0,0,0,0.4);
+        }
+        .clickable-tag {
+            cursor: pointer;
+            transition: all 0.2s;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        .clickable-tag:hover, .clickable-tag.active {
+            background-color: var(--tag-color);
+            color: white;
+            font-weight: 600;
+        }
+        .detail-box-interactive {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .detail-box-interactive:hover, .detail-box-interactive.active {
+            background-color: var(--tag-color) !important;
+        }
+        .detail-box-interactive:hover *, .detail-box-interactive.active * {
+            color: white !important;
+        }
+
+        /* --- Style to blur content behind active filters --- */
+        #main-content-wrapper {
+            transition: filter 0.3s ease-in-out;
+        }
+        #main-content-wrapper.content-inactive {
+            filter: blur(8px);
+            pointer-events: none; /* Prevents interaction with blurred content */
+        }
+
 
         /* --- Mobile Navigation Panel Styles --- */
         .mobile-nav-button { display: none; }
@@ -112,47 +182,47 @@
         @media (max-width: 1023px) {
             .nav-desktop { display: none; }
             .mobile-nav-button { display: inline-flex; }
-            #main-filters-container { display: none; }
         }
     </style>
 </head>
 <body class="font-sans">
 
-    <div class="container mx-auto p-4 md:p-6 max-w-7xl">
-        <header class="site-header glass-panel mb-8">
-            <div class="container mx-auto p-3 nav-bar">
-                <div class="flex items-center gap-3">
-                    <button id="mobile-panel-open-btn" type="button" class="mobile-nav-button bg-gray-800 text-white" aria-label="Open menu">
-                        <svg id="hamburger-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-                    </button>
-                    <div class="flex flex-col">
-                        <h1 class="text-2xl md:text-3xl font-bold text-white mb-0">🎬 Yorck Kino Search</h1>
-                        <p class="text-xs text-gray-400">Your personal guide to the Yorck Kinos cinema program.</p>
-                    </div>
+    <header class="site-header glass-panel">
+        <div class="container mx-auto p-3 nav-bar">
+            <div class="flex items-center gap-3">
+                <button id="mobile-panel-open-btn" type="button" class="mobile-nav-button header-control bg-gray-800 text-white" aria-label="Open menu">
+                    <svg id="hamburger-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                </button>
+                <div class="flex flex-col">
+                    <h1 class="text-2xl md:text-3xl font-bold text-white mb-0">🎬 Yorck Kino Search</h1>
+                    <p class="text-xs text-gray-400">Your personal guide to the Yorck Kinos cinema program.</p>
                 </div>
-                <nav class="nav-actions nav-desktop" id="primary-controls">
-                    <button id="fetch-btn" class="header-control bg-amber-400 text-gray-900 font-bold hover:bg-amber-500 transition-colors duration-200">Update Listings</button>
-                    <button id="clear-cache-btn" class="header-control bg-gray-700 text-white font-semibold hover:bg-red-600 transition-colors duration-200 ml-3">Clear</button>
-                    <div id="last-updated" class="text-sm text-gray-300 ml-4">Updated: -</div>
-                    <a href="#" id="nav-filters-desktop" class="header-control bg-gray-800 text-gray-200 text-sm ml-4 hover:bg-gray-700">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
-                    </a>
-                </nav>
             </div>
-        </header>
+            <nav class="nav-actions nav-desktop" id="primary-controls">
+                <div id="last-updated" class="text-sm text-gray-300 mr-4">Updated: -</div>
+                <button id="fetch-btn" class="header-control bg-gray-800 text-gray-200 hover:bg-amber-500 hover:text-gray-900">Update Listings</button>
+                <button id="clear-cache-btn" class="header-control bg-gray-800 text-gray-200 hover:bg-red-600 hover:text-white ml-3">Clear</button>
+                <button id="toggle-filters-btn" class="header-control bg-gray-800 text-gray-200 ml-4 hover:bg-gray-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+                    Filters
+                </button>
+                <a href="#" id="nav-filters-desktop" class="header-control bg-gray-800 text-gray-200 ml-2 hover:bg-gray-700" title="Scroll to Top">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+                </a>
+            </nav>
+        </div>
+        <!-- The #filters-panel will be moved here by JS on desktop screens -->
+    </header>
 
+    <main id="main-content-wrapper" class="container mx-auto p-4 md:p-6 max-w-7xl">
         <div id="initial-cta" class="glass-panel p-8 mb-6 text-center">
             <p class="text-lg text-gray-300 mb-4">Welcome — load the Yorck website data to get started.</p>
             <button id="load-yorck-data" class="bg-amber-400 text-gray-900 font-bold py-3 px-6 rounded-lg hover:bg-amber-500 transition-colors duration-200">Load Yorck Website Data</button>
         </div>
 
-        <div id="main-filters-container">
-            <!-- The #filters-panel will be moved here by JS on desktop screens -->
-        </div>
-
         <div id="status-container" class="text-center my-8"></div>
         <div id="results-container"></div>
-    </div>
+    </main>
     
     <div id="filters-panel" class="hidden glass-panel p-4 md:p-6 mb-6">
         <!-- ROW 1: Title, Cinema, Genre, Version, Specials -->
@@ -243,6 +313,10 @@
                     <button id="emoji-toggle-btn" title="Toggle 'Unsure' Emoji" class="header-control bg-gray-700 text-white font-bold hover:bg-gray-600">❓</button>
                 </div>
             </div>
+            <div id="tag-filter-container" class="hidden flex flex-wrap items-center justify-between gap-4 pt-4 mt-4 border-t border-gray-700/50">
+                <div id="tag-display-area" class="flex flex-wrap items-center gap-2 flex-grow"></div>
+                <button id="clear-tags-btn" class="header-control bg-gray-700 text-white font-semibold hover:bg-red-600 text-sm" style="height: 36px;">Clear Tags</button>
+            </div>
         </div>
     </div>
 
@@ -284,6 +358,12 @@ document.addEventListener('DOMContentLoaded', () => {
         filtersPanel: document.getElementById('filters-panel'),
         timeFilterContainer: document.getElementById('time-filter'),
         viewToggle: document.getElementById('view-toggle'),
+        tagFilterContainer: document.getElementById('tag-filter-container'),
+        tagDisplayArea: document.getElementById('tag-display-area'),
+        clearTagsBtn: document.getElementById('clear-tags-btn'),
+        toggleFiltersBtn: document.getElementById('toggle-filters-btn'),
+        header: document.querySelector('.site-header'),
+        mainContent: document.getElementById('main-content-wrapper')
     };
 
     const state = { 
@@ -295,7 +375,8 @@ document.addEventListener('DOMContentLoaded', () => {
         selectedCinemas: ['all'],
         selectedGenres: [],
         selectedVersions: [],
-        selectedSpecials: []
+        selectedSpecials: [],
+        activeTags: [],
     };
     const CORS_PROXY = 'https://corsproxy.io/?';
     const YORCK_PROGRAM_URL = 'https://www.yorck.de/en/films';
@@ -304,11 +385,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const STANDARD_VERSIONS = ['DF', 'OV', 'OmU', 'OmeU'];
     
     const COLOR_MAP = { 'DF': { bg: '#3b82f6', text: '#ffffff' }, 'OV': { bg: '#22c55e', text: '#ffffff' }, 'OmU': { bg: '#f97316', text: '#ffffff' }, 'OmeU': { bg: '#a855f7', text: '#ffffff' }, 'Mongay': { bg: '#ec4899', text: '#ffffff' }, 'Creepy C': { bg: '#ef4444', text: '#ffffff' }, 'InTheMood': { bg: '#14b8a6', text: '#ffffff' }, 'Sneak': { bg: '#0ea5e9', text: '#ffffff' }, 'Classic Sneak': { bg: '#6b7280', text: '#ffffff' }, 'Fetch': { bg: '#d946ef', text: '#ffffff' }, 'Torment Nexus': { bg: '#65a30d', text: '#ffffff' }, 'Ciné Club': { bg: '#0ea5e9', text: '#ffffff' }, 'Queerfilmnacht': { bg: '#c026d3', text: '#ffffff' }, 'FILM & TALK #2030': { bg: '#475569', text: '#ffffff' }, 'Cine en Español': { bg: '#dc2626', text: '#ffffff' }, 'Crafts Club': { bg: '#f59e0b', text: '#ffffff' }, 'Best of Cinema': { bg: '#8b5cf6', text: '#ffffff' }, 'Bis(s) zum Abspann': { bg: '#b91c1c', text: '#ffffff' }, 'Boulevard Noir': { bg: '#4f46e5', text: '#ffffff' }, 'Screen Legends': { bg: '#374151', text: '#ffffff' }, 'SV': { bg: '#78716c', text: '#ffffff' }, 'Festival': { bg: '#d97706', text: '#ffffff' }, 'KF': { bg: '#06b6d4', text: '#ffffff' }, 'Lesung': { bg: '#a16207', text: '#ffffff'}, 'default': { border: '#4b5563', text: '#d1d5db' } };
+    const TAG_COLOR_MAP = { year: '#be123c', country: '#0e7490', language: '#581c87', director: '#b45309', cast: '#166534', writer: '#374151' };
+
+    function setMainContentMargin() {
+        if (elements.header && elements.mainContent) {
+            const headerHeight = elements.header.offsetHeight;
+            elements.mainContent.style.marginTop = `${headerHeight + 32}px`;
+        }
+    }
 
     function initializeApp() {
         manageFilterPanelLayout();
         setupEventListeners();
         setupImageObserver();
+        setMainContentMargin();
         const storedData = localStorage.getItem('yorckData');
         const cta = document.getElementById('initial-cta');
         if (storedData) {
@@ -317,7 +407,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 processRawData(films);
                 elements.lastUpdatedEl.textContent = `Updated: ${formatTimestamp(timestamp)}`;
                 setupFilters();
-                if (elements.filtersPanel) elements.filtersPanel.classList.remove('hidden');
                 renderFilteredResults();
                 if (cta) cta.style.display = 'none';
             } catch (e) {
@@ -346,8 +435,39 @@ document.addEventListener('DOMContentLoaded', () => {
             renderFilteredResults();
         });
         elements.resultsContainer?.addEventListener('click', handleShowtimeClick);
-        window.addEventListener('resize', debounce(manageFilterPanelLayout, 200));
+        elements.resultsContainer?.addEventListener('click', handleTagClick);
+        elements.tagDisplayArea?.addEventListener('click', handleRemoveTagClick);
+        elements.clearTagsBtn?.addEventListener('click', clearAllTags);
+        
+        elements.toggleFiltersBtn?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isHidden = elements.filtersPanel.classList.toggle('hidden');
+            elements.mainContent.classList.toggle('content-inactive', !isHidden);
+            setTimeout(setMainContentMargin, 50);
+        });
+
+        window.addEventListener('resize', debounce(() => {
+            manageFilterPanelLayout();
+            setMainContentMargin();
+        }, 200));
+        
         setupMobileNav();
+
+        document.addEventListener('click', (e) => {
+            const allDropdowns = document.querySelectorAll('.dropdown-panel');
+            allDropdowns.forEach(d => {
+                if (!d.contains(e.target) && !d.previousElementSibling.contains(e.target)) {
+                    d.classList.add('hidden');
+                }
+            });
+            if (window.innerWidth >= 1023 && elements.filtersPanel && !elements.filtersPanel.classList.contains('hidden')) {
+                if (!elements.filtersPanel.contains(e.target) && !elements.toggleFiltersBtn.contains(e.target)) {
+                    elements.filtersPanel.classList.add('hidden');
+                    elements.mainContent.classList.remove('content-inactive');
+                    setTimeout(setMainContentMargin, 50);
+                }
+            }
+        });
     }
 
     function scrollToTop() {
@@ -453,7 +573,6 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => elements.statusContainer.innerHTML = '', 3000);
             
             setupFilters();
-            if (elements.filtersPanel) elements.filtersPanel.classList.remove('hidden');
             renderFilteredResults();
 
         } catch (error) {
@@ -529,7 +648,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
                 });
             }
-            button.addEventListener('click', (e) => { e.stopPropagation(); dropdown.classList.toggle('hidden'); if(searchInput) searchInput.focus(); });
+            button.addEventListener('click', e => { 
+                e.stopPropagation();
+                dropdown.classList.toggle('hidden');
+                if (searchInput) searchInput.focus();
+            });
             syncSelection();
         };
 
@@ -539,18 +662,56 @@ document.addEventListener('DOMContentLoaded', () => {
         setupDropdown({ buttonId: 'versionDropdownButton', dropdownId: 'versionDropdown', listId: 'version-list', clearId: 'version-clear-selection', stateKey: 'selectedVersions', placeholder: 'All Versions', items: uniqueVersions, type: 'version' });
         setupDropdown({ buttonId: 'specialsDropdownButton', dropdownId: 'specialsDropdown', listId: 'specials-list', clearId: 'specials-clear-selection', stateKey: 'selectedSpecials', placeholder: 'All Specials', items: uniqueSpecials, type: 'specials' });
         
-        document.addEventListener('click', () => { ['titleDropdown', 'cinemaDropdown', 'genreDropdown', 'versionDropdown', 'specialsDropdown'].forEach(id => document.getElementById(id)?.classList.add('hidden')); });
-        document.querySelectorAll('.relative').forEach(el => el.addEventListener('click', e => e.stopPropagation()));
+        elements.filtersPanel.addEventListener('click', e => e.stopPropagation());
+    }
+
+    function renderTags() {
+        elements.tagDisplayArea.innerHTML = '';
+        if (state.activeTags.length === 0) {
+            elements.tagFilterContainer.classList.add('hidden');
+            return;
+        }
+        elements.tagFilterContainer.classList.remove('hidden');
+
+        state.activeTags.forEach((tag, index) => {
+            const tagEl = document.createElement('div');
+            tagEl.className = 'tag-pill';
+            tagEl.style.backgroundColor = TAG_COLOR_MAP[tag.type] || '#6b7280';
+            tagEl.innerHTML = `
+                <span>${tag.type}: <strong>${tag.value}</strong></span>
+                <button data-index="${index}" title="Remove tag">&times;</button>
+            `;
+            elements.tagDisplayArea.appendChild(tagEl);
+        });
     }
     
     function renderFilteredResults() {
+        renderTags();
         const filters = { titles: state.selectedTitles, cinema: state.selectedCinemas, genres: state.selectedGenres, versions: state.selectedVersions, specials: state.selectedSpecials, time: elements.timeFilterContainer.querySelector(':checked')?.value || 'all', quickDate: document.querySelector('input[name="quickDate"]:checked')?.value || 'all' };
+        
+        const filmMatchesTag = (item, tag) => {
+            const extra = item.film.extraDetails || {};
+            switch(tag.type) {
+                case 'year': return String(extra.year) === tag.value;
+                case 'country': return (extra.country || '').includes(tag.value);
+                case 'language': return (extra.originalLanguage || '').includes(tag.value);
+                case 'director': return (extra.director || '').includes(tag.value);
+                case 'cast': return (extra.fullCast || '').includes(tag.value);
+                case 'writer': return (extra.writers || '').includes(tag.value);
+                default: return false;
+            }
+        };
+
         state.currentlyFilteredSessions = state.allSessions.filter(item => {
             const sessionTime = new Date(item.session.startTime); const sessionHour = sessionTime.getHours(); const itemFormats = item.session.formats || []; const itemGenre = item.film.mainLabel; const allVersionFilters = [...filters.versions, ...filters.specials];
             const inQuickRange = (() => {
                 const q = filters.quickDate; if (q === 'all') return true; const dayStart = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate()); const today = dayStart(new Date()); const sessionDay = dayStart(sessionTime); if (q === 'today') return sessionDay.getTime() === today.getTime(); if (q === 'tomorrow') { const t = new Date(today); t.setDate(t.getDate() + 1); return sessionDay.getTime() === t.getTime(); } const getWeekRange = (base, weekOffset = 0) => { const d = new Date(base); d.setDate(d.getDate() + weekOffset * 7); const day = d.getDay(); const monday = new Date(d); monday.setDate(d.getDate() - ((day + 6) % 7)); monday.setHours(0,0,0,0); const sunday = new Date(monday); sunday.setDate(monday.getDate() + 6); sunday.setHours(23,59,59,999); return { start: monday, end: sunday }; }; if (q === 'this_week') { const range = getWeekRange(new Date(), 0); return sessionTime >= range.start && sessionTime <= range.end; } if (q === 'next_week') { const range = getWeekRange(new Date(), 1); return sessionTime >= range.start && sessionTime <= range.end; } if (q === 'future') { const range = getWeekRange(new Date(), 1); return sessionTime > range.end; } return true;
             })();
             if (!inQuickRange) return false;
+
+            const matchesTags = state.activeTags.every(tag => filmMatchesTag(item, tag));
+            if (!matchesTags) return false;
+
             return ((filters.titles.length === 0 || filters.titles.includes(item.film.title)) && (filters.cinema.includes('all') || filters.cinema.includes(item.cinema.name.trim())) && (filters.genres.length === 0 || (itemGenre && filters.genres.includes(itemGenre))) && (allVersionFilters.length === 0 || itemFormats.some(v => allVersionFilters.includes(v))) && !((filters.time === 'morning' && sessionHour >= 12) || (filters.time === 'afternoon' && (sessionHour < 12 || sessionHour >= 17)) || (filters.time === 'evening' && sessionHour < 17)));
         });
         elements.statusContainer.innerHTML = ''; elements.resultsContainer.innerHTML = '';
@@ -566,14 +727,65 @@ document.addEventListener('DOMContentLoaded', () => {
         const filmUrl = `https://www.yorck.de/en/films/${film.slug}`;
         const extraDetails = film.extraDetails || {};
         
-        const renderDetailBox = (label, value) => {
+        const isTagActive = (type, value) => state.activeTags.some(tag => tag.type === type && tag.value === value);
+        
+        const createClickableList = (type, listString) => {
+            if (!listString) return 'N/A';
+            const terfString = "DON'T FUND TERFs";
+            const modifiedListString = listString.replace(/J\.?K\.? Rowling/gi, terfString);
+
+            return modifiedListString.split(',').map(item => item.trim()).map(value => {
+                if (value === terfString) {
+                    return `<span class="font-bold text-red-400 p-1">${value}</span>`;
+                }
+                const isActive = isTagActive(type, value);
+                const tagColor = TAG_COLOR_MAP[type] || '#6b7280';
+                const style = `--tag-color: ${tagColor}`;
+                let classes = 'clickable-tag';
+                if (isActive) classes += ' active';
+                return `<span class="${classes}" data-tag-type="${type}" data-tag-value="${value}" style="${style}">${value}</span>`;
+            }).join(', ');
+        };
+
+        const renderDetailBox = (label, type, value) => {
             if (!value) return '';
-            return `<div class="bg-gray-800/50 p-2 rounded-md flex flex-col items-center justify-center text-center">
-                        <strong class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">${label}</strong>
-                        <span class="text-sm">${value}</span>
-                    </div>`;
+            
+            const baseClasses = "bg-gray-800/50 p-2 rounded-md flex flex-col items-center justify-center text-center transition-colors duration-200";
+            const innerHtml = `<strong class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">${label}</strong><span class="text-sm">${value}</span>`;
+
+            if (type === 'runtime') {
+                return `<div class="${baseClasses}">${innerHtml}</div>`;
+            }
+            
+            const isActive = isTagActive(type, String(value));
+            const tagColor = TAG_COLOR_MAP[type] || '#6b7280';
+            const style = `--tag-color: ${tagColor}`;
+            let classes = `${baseClasses} detail-box-interactive`;
+            if (isActive) classes += ' active';
+
+            const clickableInnerHtml = `<strong class="block text-xs font-semibold text-gray-400 uppercase tracking-wider pointer-events-none">${label}</strong><span class="text-sm pointer-events-none">${value}</span>`;
+            
+            return `<div class="${classes}" data-tag-type="${type}" data-tag-value="${String(value)}" style="${style}">${clickableInnerHtml}</div>`;
         };
         
+        const renderMultiDetailBox = (label, type, valueString) => {
+            if (!valueString) return '';
+            const values = valueString.split(',').map(s => s.trim());
+            const content = values.map(value => {
+                 const isActive = isTagActive(type, value);
+                 const tagColor = TAG_COLOR_MAP[type] || '#6b7280';
+                 const style = `--tag-color: ${tagColor}`;
+                 let classes = 'clickable-tag';
+                 if (isActive) classes += ' active';
+                 return `<span class="${classes}" data-tag-type="${type}" data-tag-value="${value}" style="${style}">${value}</span>`;
+            }).join(' ');
+
+            return `<div class="bg-gray-800/50 p-2 rounded-md flex flex-col items-center justify-center text-center">
+                        <strong class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">${label}</strong>
+                        <div class="text-sm flex flex-wrap gap-x-2 justify-center">${content}</div>
+                    </div>`;
+        }
+
         return `
             <div class="flex flex-col sm:flex-row gap-6">
                 <a href="${filmUrl}" target="_blank" rel="noopener noreferrer" class="flex-shrink-0 w-full aspect-video sm:w-72 md:w-1/3 sm:aspect-[3/2]">
@@ -584,16 +796,16 @@ document.addEventListener('DOMContentLoaded', () => {
                         <h3 class="text-2xl font-semibold text-white">${film.title}</h3>
                     </a>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3 mb-4">
-                       ${renderDetailBox('Year', extraDetails.year)}
-                       ${renderDetailBox('Runtime', film.runtime ? `${film.runtime} min` : null)}
-                       ${renderDetailBox('Country', extraDetails.country)}
-                       ${renderDetailBox('Language', extraDetails.originalLanguage)}
+                       ${renderDetailBox('Year', 'year', extraDetails.year)}
+                       ${renderDetailBox('Runtime', 'runtime', film.runtime ? `${film.runtime} min` : null)}
+                       ${renderMultiDetailBox('Country', 'country', extraDetails.country)}
+                       ${renderMultiDetailBox('Language', 'language', extraDetails.originalLanguage)}
                     </div>
                     <p class="text-sm text-gray-300 mb-4">${extraDetails.longDescription || film.tagline || ''}</p>
                     <div class="space-y-3 text-sm mt-auto">
-                        <div><strong class="font-semibold text-gray-400 block w-24 inline-block">Director:</strong> ${extraDetails.director || 'N/A'}</div>
-                        <div><strong class="font-semibold text-gray-400 block w-24 inline-block">Cast:</strong> ${extraDetails.fullCast || 'N/A'}</div>
-                        <div><strong class="font-semibold text-gray-400 block w-24 inline-block">Writer:</strong> ${extraDetails.writers || 'N/A'}</div>
+                        <div><strong class="font-semibold text-gray-400 block w-24 inline-block">Director:</strong> ${createClickableList('director', extraDetails.director)}</div>
+                        <div><strong class="font-semibold text-gray-400 block w-24 inline-block">Cast:</strong> ${createClickableList('cast', extraDetails.fullCast)}</div>
+                        <div><strong class="font-semibold text-gray-400 block w-24 inline-block">Writer:</strong> ${createClickableList('writer', extraDetails.writers)}</div>
                     </div>
                 </div>
             </div>`;
@@ -681,8 +893,44 @@ document.addEventListener('DOMContentLoaded', () => {
     
         elements.resultsContainer.innerHTML = html;
     }
-    function handleShowtimeClick(e) { const btn = e.target.closest('.showtime-btn'); if (!btn || !btn.dataset.sessionIndex) return; const item = state.currentlyFilteredSessions[parseInt(btn.dataset.sessionIndex, 10)]; if (!item) { console.error('Session data not found'); return; } downloadIcsFile(generateIcsContent(item.film, item.session, item.cinema.name), item.film.slug, item.session.startTime); }
+    function handleShowtimeClick(e) { const btn = e.target.closest('.showtime-btn'); if (!btn) return; e.stopPropagation(); const item = state.currentlyFilteredSessions[parseInt(btn.dataset.sessionIndex, 10)]; if (!item) { console.error('Session data not found'); return; } downloadIcsFile(generateIcsContent(item.film, item.session, item.cinema.name), item.film.slug, item.session.startTime); }
     
+    function handleTagClick(e) {
+        const tagEl = e.target.closest('[data-tag-type][data-tag-value]');
+        if (!tagEl) return;
+        
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const newTag = {
+            type: tagEl.dataset.tagType,
+            value: tagEl.dataset.tagValue
+        };
+        
+        const existingIndex = state.activeTags.findIndex(t => t.type === newTag.type && t.value === newTag.value);
+
+        if (existingIndex > -1) {
+            state.activeTags.splice(existingIndex, 1);
+        } else {
+            state.activeTags.push(newTag);
+        }
+        renderFilteredResults();
+    }
+
+    function handleRemoveTagClick(e) {
+        const removeBtn = e.target.closest('button[data-index]');
+        if (!removeBtn) return;
+        
+        const indexToRemove = parseInt(removeBtn.dataset.index, 10);
+        state.activeTags.splice(indexToRemove, 1);
+        renderFilteredResults();
+    }
+
+    function clearAllTags() {
+        state.activeTags = [];
+        renderFilteredResults();
+    }
+
     function generateIcsContent(film, session, cinemaName) {
         const startDate = new Date(session.startTime);
         const endDate = new Date(startDate.getTime() + (film.runtime || 90) * 60000);
@@ -730,20 +978,33 @@ document.addEventListener('DOMContentLoaded', () => {
     
     function manageFilterPanelLayout() {
         const filtersPanel = document.getElementById('filters-panel');
-        const desktopContainer = document.getElementById('main-filters-container');
         const mobileMount = document.getElementById('mobile-filters-mount');
-        if (!filtersPanel || !desktopContainer || !mobileMount) return;
-        if (window.innerWidth < 1023) { // Switched to lg breakpoint
-            if (!mobileMount.contains(filtersPanel)) mobileMount.appendChild(filtersPanel);
+        if (!filtersPanel || !mobileMount) return;
+
+        if (window.innerWidth < 1023) {
+            if (!mobileMount.contains(filtersPanel)) {
+                mobileMount.appendChild(filtersPanel);
+                filtersPanel.classList.remove('absolute', 'top-full', 'mt-2', 'w-full', 'z-50', 'hidden');
+            }
         } else {
-            if (!desktopContainer.contains(filtersPanel)) desktopContainer.appendChild(filtersPanel);
+            if (!elements.header.contains(filtersPanel)) {
+                elements.header.appendChild(filtersPanel);
+                filtersPanel.classList.add('absolute', 'top-full', 'mt-2', 'w-full', 'z-50');
+                 if(!filtersPanel.classList.contains('hidden')) {
+                    filtersPanel.classList.add('hidden');
+                }
+            }
         }
     }
 
     function setupMobileNav() {
         const container = document.getElementById('mobile-nav-container'); const openBtn = document.getElementById('mobile-panel-open-btn'); const closeBtn = document.getElementById('mobile-panel-close-btn'); const scrollTopBtn = document.getElementById('mobile-scroll-top-btn'); const mobileFetchBtn = document.getElementById('mobile-fetch-btn'); const mobileClearCacheBtn = document.getElementById('mobile-clear-cache-btn');
         if (!container || !openBtn || !closeBtn) return;
-        const togglePanel = (open) => { container.classList.toggle('open', open); document.body.classList.toggle('no-scroll', open); };
+        const togglePanel = (open) => { 
+            container.classList.toggle('open', open); 
+            document.body.classList.toggle('no-scroll', open); 
+            elements.mainContent.classList.toggle('content-inactive', open);
+        };
         openBtn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); togglePanel(true); });
         closeBtn.addEventListener('click', () => togglePanel(false));
         container.addEventListener('click', (e) => { if (e.target === container) togglePanel(false); });
