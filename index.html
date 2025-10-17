@@ -165,7 +165,7 @@
                     <div id="titleDropdown" class="dropdown-panel hidden bg-gray-800 rounded-md shadow-lg w-full border border-gray-700">
                         <div class="p-2 border-b border-gray-700"><input type="text" id="title-search-input" placeholder="Search title..." class="form-element w-full" /></div>
                         <div class="p-2 flex justify-end border-b border-gray-700"><button id="title-clear-selection" class="text-sm text-amber-400 font-semibold hover:text-amber-300 disabled:text-gray-500">Clear</button></div>
-                        <ul id="title-list" class="max-h-48 overflow-y-auto text-sm text-gray-200 p-2 space-y-1"></ul>
+                        <ul id="title-list" class="max-h-60 overflow-y-auto text-sm text-gray-200 p-2 space-y-1"></ul>
                     </div>
                 </div>
             </div>
@@ -174,9 +174,9 @@
                 <div class="relative">
                     <button id="cinemaDropdownButton" type="button" class="w-full text-left form-element" aria-expanded="false">All Cinemas</button>
                     <div id="cinemaDropdown" class="dropdown-panel hidden bg-gray-800 rounded-md shadow-lg w-full border border-gray-700">
-                        <div class="p-2 border-b border-gray-700"><input type="text" id="cinema-search-input" placeholder="Search cinema" class="form-element w-full" /></div>
+                        <div class="p-2 border-b border-gray-700"><input type="text" id="cinema-search-input" placeholder="Search cinema..." class="form-element w-full" /></div>
                         <div class="p-2 flex justify-end border-b border-gray-700"><button id="cinema-clear-selection" class="text-sm text-amber-400 font-semibold hover:text-amber-300 disabled:text-gray-500">Clear</button></div>
-                        <ul id="cinema-list" class="max-h-48 overflow-y-auto text-sm text-gray-200 p-2 space-y-1"></ul>
+                        <ul id="cinema-list" class="max-h-60 overflow-y-auto text-sm text-gray-200 p-2 space-y-1"></ul>
                     </div>
                 </div>
             </div>
@@ -185,8 +185,9 @@
                 <div class="relative">
                     <button id="genreDropdownButton" type="button" class="w-full text-left form-element" aria-expanded="false">All Genres</button>
                     <div id="genreDropdown" class="dropdown-panel hidden bg-gray-800 rounded-md shadow-lg w-full border border-gray-700">
+                        <div class="p-2 border-b border-gray-700"><input type="text" id="genre-search-input" placeholder="Search genre..." class="form-element w-full" /></div>
                         <div class="p-2 flex justify-end border-b border-gray-700"><button id="genre-clear-selection" class="text-sm text-amber-400 font-semibold hover:text-amber-300 disabled:text-gray-500">Clear</button></div>
-                        <ul id="genre-list" class="max-h-48 overflow-y-auto text-sm text-gray-200 p-2 space-y-1"></ul>
+                        <ul id="genre-list" class="max-h-60 overflow-y-auto text-sm text-gray-200 p-2 space-y-1"></ul>
                     </div>
                 </div>
             </div>
@@ -196,7 +197,7 @@
                     <button id="versionDropdownButton" type="button" class="w-full text-left form-element" aria-expanded="false">All Versions</button>
                     <div id="versionDropdown" class="dropdown-panel hidden bg-gray-800 rounded-md shadow-lg w-full border border-gray-700">
                         <div class="p-2 flex justify-end border-b border-gray-700"><button id="version-clear-selection" class="text-sm text-amber-400 font-semibold hover:text-amber-300 disabled:text-gray-500">Clear</button></div>
-                        <ul id="version-list" class="max-h-48 overflow-y-auto text-sm text-gray-200 p-2 space-y-1"></ul>
+                        <ul id="version-list" class="max-h-60 overflow-y-auto text-sm text-gray-200 p-2 space-y-1"></ul>
                     </div>
                 </div>
             </div>
@@ -206,7 +207,7 @@
                     <button id="specialsDropdownButton" type="button" class="w-full text-left form-element" aria-expanded="false">All Specials</button>
                     <div id="specialsDropdown" class="dropdown-panel hidden bg-gray-800 rounded-md shadow-lg w-full border border-gray-700">
                         <div class="p-2 flex justify-end border-b border-gray-700"><button id="specials-clear-selection" class="text-sm text-amber-400 font-semibold hover:text-amber-300 disabled:text-gray-500">Clear</button></div>
-                        <ul id="specials-list" class="max-h-48 overflow-y-auto text-sm text-gray-200 p-2 space-y-1"></ul>
+                        <ul id="specials-list" class="max-h-60 overflow-y-auto text-sm text-gray-200 p-2 space-y-1"></ul>
                     </div>
                 </div>
             </div>
@@ -457,7 +458,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         setupDropdown({ buttonId: 'titleDropdownButton', dropdownId: 'titleDropdown', listId: 'title-list', clearId: 'title-clear-selection', searchId: 'title-search-input', stateKey: 'selectedTitles', placeholder: 'All Films', items: uniqueTitles, type: 'title' });
         setupDropdown({ buttonId: 'cinemaDropdownButton', dropdownId: 'cinemaDropdown', listId: 'cinema-list', clearId: 'cinema-clear-selection', searchId: 'cinema-search-input', stateKey: 'selectedCinemas', placeholder: 'All Cinemas', items: uniqueCinemas, type: 'cinema' });
-        setupDropdown({ buttonId: 'genreDropdownButton', dropdownId: 'genreDropdown', listId: 'genre-list', clearId: 'genre-clear-selection', stateKey: 'selectedGenres', placeholder: 'All Genres', items: uniqueGenres, type: 'genre' });
+        setupDropdown({ buttonId: 'genreDropdownButton', dropdownId: 'genreDropdown', listId: 'genre-list', clearId: 'genre-clear-selection', searchId: 'genre-search-input', stateKey: 'selectedGenres', placeholder: 'All Genres', items: uniqueGenres, type: 'genre' });
         setupDropdown({ buttonId: 'versionDropdownButton', dropdownId: 'versionDropdown', listId: 'version-list', clearId: 'version-clear-selection', stateKey: 'selectedVersions', placeholder: 'All Versions', items: uniqueVersions, type: 'version' });
         setupDropdown({ buttonId: 'specialsDropdownButton', dropdownId: 'specialsDropdown', listId: 'specials-list', clearId: 'specials-clear-selection', stateKey: 'selectedSpecials', placeholder: 'All Specials', items: uniqueSpecials, type: 'specials' });
         
@@ -490,7 +491,67 @@ document.addEventListener('DOMContentLoaded', () => {
     const dateSubHeader = date => `<h4 class="text-xl font-bold text-amber-400 mb-4">${new Date(date + 'T00:00:00Z').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'UTC' })}</h4>`;
     const renderGroupedByDate = s => renderGroupedBy(s, i => i.session.startTime.split('T')[0], i => i.cinema.name.trim(), dateHeader, cinemaSubHeader);
     const renderGroupedByCinema = s => renderGroupedBy(s, i => i.cinema.name.trim(), i => i.session.startTime.split('T')[0], cinemaHeader, dateSubHeader);
-    function renderGroupedByFilm(sessions) { const indexMap = new Map(sessions.map((s, i) => [s, i])); const groupedByFilm = sessions.reduce((acc, item) => { (acc[item.film.title] = acc[item.film.title] || []).push(item); return acc; }, {}); const html = Object.keys(groupedByFilm).sort().map(filmTitle => { const filmSessions = groupedByFilm[filmTitle]; const filmData = filmSessions[0].film; const posterUrl = filmData.heroImage?.fields?.image?.fields?.file?.url ? `https:${filmData.heroImage.fields.image.fields.file.url}` : 'https://via.placeholder.com/320x180.png?text=No+Image'; const details = [filmData.mainLabel, filmData.runtime ? `${filmData.runtime} min` : null, filmData.fsk !== null ? `FSK ${filmData.fsk}` : null].filter(Boolean).join(' | '); let filmHTML = `<div class="flex flex-col sm:flex-row gap-4 py-4 border-b-2 border-amber-400 mt-8"><a href="https://www.yorck.de/en/films/${filmData.slug}" target="_blank" rel="noopener noreferrer" class="flex-shrink-0 w-full sm:w-64 aspect-video"><div class="lazy-load-placeholder" data-src="${posterUrl}" data-alt="${filmTitle} Poster"></div></a><div class="flex-grow"><a href="https://www.yorck.de/en/films/${filmData.slug}" target="_blank" rel="noopener noreferrer" class="hover:underline"><h3 class="text-2xl font-semibold text-white">${filmTitle}</h3></a><p class="text-sm text-gray-400 mt-1 italic">${filmData.tagline || ''}</p><p class="text-xs text-gray-300 font-medium mt-2">${details}</p></div></div>`; const groupedByDate = filmSessions.reduce((acc, item) => { const date = item.session.startTime.split('T')[0]; if (!acc[date]) acc[date] = []; acc[date].push(item); return acc; }, {}); Object.keys(groupedByDate).sort().forEach(date => { filmHTML += `<h4 class="text-lg font-bold text-amber-400 mt-4 mb-2">${new Date(date + 'T00:00:00Z').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'UTC' })}</h4>`; const groupedByCinema = groupedByDate[date].reduce((acc, item) => { if (!acc[item.cinema.name]) acc[item.cinema.name] = []; acc[item.cinema.name].push(item); return acc; }, {}); Object.keys(groupedByCinema).sort().forEach(cinemaName => { filmHTML += `<div class="pl-4 border-l-2 border-gray-700 mb-3"><p class="font-semibold">${cinemaName}</p><div class="flex flex-wrap gap-2 mt-1">${createShowtimeButtons(groupedByCinema[cinemaName], indexMap)}</div></div>`; }); }); return filmHTML; }).join(''); elements.resultsContainer.innerHTML = html; }
+    function renderGroupedByFilm(sessions) {
+        const indexMap = new Map(sessions.map((s, i) => [s, i]));
+        const groupedByFilm = sessions.reduce((acc, item) => {
+            (acc[item.film.title] = acc[item.film.title] || []).push(item);
+            return acc;
+        }, {});
+    
+        const html = Object.keys(groupedByFilm).sort().map(filmTitle => {
+            const filmSessions = groupedByFilm[filmTitle];
+            const filmData = filmSessions[0].film;
+            const posterUrl = filmData.heroImage?.fields?.image?.fields?.file?.url ? `https:${filmData.heroImage.fields.image.fields.file.url}` : 'https://via.placeholder.com/320x180.png?text=No+Image';
+            const details = [filmData.mainLabel, filmData.runtime ? `${filmData.runtime} min` : null, filmData.fsk !== null ? `FSK ${filmData.fsk}` : null].filter(Boolean).join(' | ');
+            
+            let filmHTML = `<div class="flex flex-col sm:flex-row gap-4 py-4 border-b-2 border-amber-400 mt-8">
+                <a href="https://www.yorck.de/en/films/${filmData.slug}" target="_blank" rel="noopener noreferrer" class="flex-shrink-0 w-full sm:w-64 aspect-video">
+                    <div class="lazy-load-placeholder" data-src="${posterUrl}" data-alt="${filmTitle} Poster"></div>
+                </a>
+                <div class="flex-grow">
+                    <a href="https://www.yorck.de/en/films/${filmData.slug}" target="_blank" rel="noopener noreferrer" class="hover:underline">
+                        <h3 class="text-2xl font-semibold text-white">${filmTitle}</h3>
+                    </a>
+                    <p class="text-sm text-gray-400 mt-1 italic">${filmData.tagline || ''}</p>
+                    <p class="text-xs text-gray-300 font-medium mt-2">${details}</p>
+                </div>
+            </div>`;
+    
+            const groupedByDate = filmSessions.reduce((acc, item) => {
+                const date = item.session.startTime.split('T')[0];
+                if (!acc[date]) acc[date] = [];
+                acc[date].push(item);
+                return acc;
+            }, {});
+    
+            let datesHTML = '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6">';
+            Object.keys(groupedByDate).sort().forEach(date => {
+                datesHTML += `<div class="mt-4 break-inside-avoid">
+                    <h4 class="text-lg font-bold text-amber-400 mb-2">${new Date(date + 'T00:00:00Z').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'UTC' })}</h4>`;
+                
+                const groupedByCinema = groupedByDate[date].reduce((acc, item) => {
+                    if (!acc[item.cinema.name]) acc[item.cinema.name] = [];
+                    acc[item.cinema.name].push(item);
+                    return acc;
+                }, {});
+    
+                Object.keys(groupedByCinema).sort().forEach((cinemaName, index) => {
+                    const bgColorClass = index % 2 === 1 ? 'bg-gray-900/40' : '';
+                    datesHTML += `<div class="p-3 rounded-md mb-2 ${bgColorClass}">
+                        <p class="font-semibold">${cinemaName}</p>
+                        <div class="flex flex-wrap gap-2 mt-1">${createShowtimeButtons(groupedByCinema[cinemaName], indexMap)}</div>
+                    </div>`;
+                });
+                datesHTML += '</div>';
+            });
+            datesHTML += '</div>';
+            filmHTML += datesHTML;
+    
+            return filmHTML;
+        }).join('');
+    
+        elements.resultsContainer.innerHTML = html;
+    }
     function handleShowtimeClick(e) { const btn = e.target.closest('.showtime-btn'); if (!btn || !btn.dataset.sessionIndex) return; const item = state.currentlyFilteredSessions[parseInt(btn.dataset.sessionIndex, 10)]; if (!item) { console.error('Session data not found'); return; } downloadIcsFile(generateIcsContent(item.film, item.session, item.cinema.name), item.film.slug, item.session.startTime); }
     function generateIcsContent(film, session, cinemaName) { const startDate = new Date(session.startTime); const endDate = new Date(startDate.getTime() + (film.runtime || 90) * 60000); const now = new Date(); const emoji = elements.emojiInput.value || '🍿'; const formatIcsDate = (date) => date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z'; const formatIcsDateWithTZ = (date) => { const pad = (n) => String(n).padStart(2, '0'); return `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}T${pad(date.getHours())}${pad(date.getMinutes())}${pad(date.getSeconds())}`; }; const escapeIcsText = (text) => (text || '').replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n'); const description = `Synopsis: ${escapeIcsText(film.tagline)}\\n\\nRuntime: ${film.runtime || 'N/A'} min\\nVersion: ${(session.formats || []).join(', ')}`; const filmUrl = `https://www.yorck.de/en/films/${film.slug}`; const vTimezone = ['BEGIN:VTIMEZONE', 'TZID:Europe/Berlin', 'BEGIN:DAYLIGHT', 'TZOFFSETFROM:+0100', 'TZOFFSETTO:+0200', 'TZNAME:CEST', 'DTSTART:19700329T020000', 'RRULE:FREQ=YEARLY;BYDAY=-1SU;BYMONTH=3', 'END:DAYLIGHT', 'BEGIN:STANDARD', 'TZOFFSETFROM:+0200', 'TZOFFSETTO:+0100', 'TZNAME:CET', 'DTSTART:19701025T030000', 'RRULE:FREQ=YEARLY;BYDAY=-1SU;BYMONTH=10', 'END:STANDARD', 'END:VTIMEZONE'].join('\r\n'); return ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//YorckPlanner//NONSGML v2.3//EN', vTimezone, 'BEGIN:VEVENT', `UID:${now.getTime()}-${film.vistaId}@yorck.de`, `DTSTAMP:${formatIcsDate(now)}`, `DTSTART;TZID=Europe/Berlin:${formatIcsDateWithTZ(startDate)}`, `DTEND;TZID=Europe/Berlin:${formatIcsDateWithTZ(endDate)}`, `SUMMARY:${escapeIcsText(`${emoji} ${film.title}`)}`, `DESCRIPTION:${description}`, `LOCATION:${escapeIcsText(cinemaName)}`, `URL;VALUE=URI:${filmUrl}`, 'END:VEVENT', 'END:VCALENDAR'].join('\r\n'); }
     function downloadIcsFile(content, filmSlug, startTime) { const date = new Date(startTime); const [y, m, d, h, min] = [date.getFullYear(), String(date.getMonth() + 1).padStart(2, '0'), String(date.getDate()).padStart(2, '0'), String(date.getHours()).padStart(2, '0'), String(date.getMinutes()).padStart(2, '0')]; const safeSlug = (filmSlug || 'film').replace(/[^a-z0-9]/gi, '-').toLowerCase(); const filename = `${y}-${m}-${d}-${h}${min}-${safeSlug}.ics`; const blob = new Blob([content], { type: 'text/calendar;charset=utf-8' }); const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = filename; document.body.appendChild(link); link.click(); document.body.removeChild(link); URL.revokeObjectURL(link.href); }
