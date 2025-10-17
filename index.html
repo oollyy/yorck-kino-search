@@ -3,9 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Yorck Kino Search</title>
+    <title>Kino Search</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        /* --- Font Imports for Cinema Theming --- */
+        @import url('https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=Changa:wght@700&family=Cinzel:wght@700&family=Cormorant+Garamond:wght@700&family=Dancing+Script:wght@700&family=EB+Garamond:wght@700&family=Limelight&family=Lora:wght@700&family=Merriweather:wght@900&family=Oswald:wght@700&family=Parisienne&family=Poppins:wght@700&family=Roboto+Slab:wght@700&family=Special+Elite&display=swap');
+
         :root {
             --bg-color: #0d1117;
             --text-color: #e6edf3;
@@ -19,10 +22,6 @@
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
-            background-image: url('https://images.pexels.com/photos/1528640/pexels-photo-1528640.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260');
-            background-size: cover;
-            background-position: center center;
-            background-attachment: fixed;
         }
         html, body {
             overflow-x: clip;
@@ -160,14 +159,51 @@
             color: white !important;
         }
 
-        /* --- Style to blur content behind active filters --- */
         #main-content-wrapper {
             transition: filter 0.3s ease-in-out;
         }
         #main-content-wrapper.content-inactive {
             filter: blur(8px);
-            pointer-events: none; /* Prevents interaction with blurred content */
+            pointer-events: none;
         }
+
+        /* --- Cinema Theming Styles --- */
+        .cinema-header-wrapper {
+             border-bottom: 2px solid var(--primary-color);
+             padding-bottom: 0.5rem;
+             margin-bottom: 1.5rem;
+             margin-top: 2rem;
+        }
+        .cinema-header-wrapper h3, .cinema-header-wrapper h4 {
+            line-height: 1.1;
+        }
+        .cinema-header-wrapper h3 .cinema-name { font-size: 2.5rem; }
+        .cinema-header-wrapper h4 .cinema-name { font-size: 2rem; }
+        .cinema-location {
+            display: block;
+            font-family: sans-serif; /* Reset to a neutral font */
+            font-style: italic;
+            font-size: 1rem;
+            color: #d1d5db; /* A slightly dimmer text color */
+            margin-top: 0.25rem;
+            font-weight: 400;
+        }
+        
+        /* Font assignments */
+        .cinema-theme-babylon-kreuzberg { font-family: 'Cinzel', serif; }
+        .cinema-theme-blauer-stern { font-family: 'Oswald', sans-serif; text-transform: uppercase; }
+        .cinema-theme-capitol-dahlem { font-family: 'Cormorant Garamond', serif; }
+        .cinema-theme-cinema-paris { font-family: 'Parisienne', cursive; font-size: 3.5rem !important; }
+        .cinema-theme-delphi-filmpalast { font-family: 'Limelight', cursive; letter-spacing: 0.05em; }
+        .cinema-theme-delphi-lux { font-family: 'Poppins', sans-serif; text-transform: uppercase; letter-spacing: 0.1em; }
+        .cinema-theme-filmtheater-am-friedrichshain { font-family: 'Anton', sans-serif; text-transform: uppercase; letter-spacing: 0.05em;}
+        .cinema-theme-kant-kino { font-family: 'Roboto Slab', serif; }
+        .cinema-theme-kino-international { font-family: 'Bebas Neue', cursive; letter-spacing: 0.1em; }
+        .cinema-theme-neues-off { font-family: 'Special Elite', cursive; }
+        .cinema-theme-odeon { font-family: 'Merriweather', serif; }
+        .cinema-theme-passage { font-family: 'EB Garamond', serif; }
+        .cinema-theme-rollberg { font-family: 'Changa', sans-serif; text-transform: uppercase; }
+        .cinema-theme-yorck { font-family: 'Lora', serif; }
 
 
         /* --- Mobile Navigation Panel Styles --- */
@@ -194,8 +230,8 @@
                     <svg id="hamburger-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
                 </button>
                 <div class="flex flex-col">
-                    <h1 class="text-2xl md:text-3xl font-bold text-white mb-0">🎬 Yorck Kino Search</h1>
-                    <p class="text-xs text-gray-400">Your personal guide to the Yorck Kinos cinema program.</p>
+                    <h1 class="text-2xl md:text-3xl font-bold text-white mb-0">🎬 Kino Search</h1>
+                    <p class="text-xs text-gray-400">Your personal guide to Berlin's cinema programs.</p>
                 </div>
             </div>
             <nav class="nav-actions nav-desktop" id="primary-controls">
@@ -216,8 +252,11 @@
 
     <main id="main-content-wrapper" class="container mx-auto p-4 md:p-6 max-w-7xl">
         <div id="initial-cta" class="glass-panel p-8 mb-6 text-center">
-            <p class="text-lg text-gray-300 mb-4">Welcome — load the Yorck website data to get started.</p>
-            <button id="load-yorck-data" class="bg-amber-400 text-gray-900 font-bold py-3 px-6 rounded-lg hover:bg-amber-500 transition-colors duration-200">Load Yorck Website Data</button>
+            <p class="text-lg text-gray-300 mb-6">Welcome! Choose a cinema group to load their program.</p>
+            <div class="flex flex-col md:flex-row justify-center items-center gap-4">
+                 <button id="load-yorck-data" data-source="yorck" class="bg-amber-400 text-gray-900 font-bold py-3 px-8 rounded-lg hover:bg-amber-500 transition-colors duration-200 w-full md:w-auto">Load Yorck Kino Data</button>
+                 <button id="load-bware-data" data-source="bware" class="bg-red-500 text-white font-bold py-3 px-8 rounded-lg hover:bg-red-600 transition-colors duration-200 w-full md:w-auto">Load B-Ware! Ladenkino Data</button>
+            </div>
         </div>
 
         <div id="status-container" class="text-center my-8"></div>
@@ -363,7 +402,8 @@ document.addEventListener('DOMContentLoaded', () => {
         clearTagsBtn: document.getElementById('clear-tags-btn'),
         toggleFiltersBtn: document.getElementById('toggle-filters-btn'),
         header: document.querySelector('.site-header'),
-        mainContent: document.getElementById('main-content-wrapper')
+        mainContent: document.getElementById('main-content-wrapper'),
+        initialCta: document.getElementById('initial-cta')
     };
 
     const state = { 
@@ -371,6 +411,7 @@ document.addEventListener('DOMContentLoaded', () => {
         currentlyFilteredSessions: [], 
         imageObserver: null,
         groupBy: 'film',
+        activeSource: null,
         selectedTitles: [],
         selectedCinemas: ['all'],
         selectedGenres: [],
@@ -378,14 +419,35 @@ document.addEventListener('DOMContentLoaded', () => {
         selectedSpecials: [],
         activeTags: [],
     };
+    
+    // --- Data Sources ---
     const CORS_PROXY = 'https://corsproxy.io/?';
     const YORCK_PROGRAM_URL = 'https://www.yorck.de/en/films';
-    
+    const BWARE_API_URL = 'https://www.kinoheld.de/ajax/getShowsForCinemas?cinemaIds[]=108&lang=de';
+
     const VERSION_DEFINITIONS = { 'DF': 'Deutsche Fassung (German Version)', 'OV': 'Originalfassung (Original Version)', 'OmU': 'Original mit Untertiteln (Original with German Subtitles)', 'OmeU': 'Original mit englischen Untertiteln (Original with English Subtitles)' };
     const STANDARD_VERSIONS = ['DF', 'OV', 'OmU', 'OmeU'];
     
-    const COLOR_MAP = { 'DF': { bg: '#3b82f6', text: '#ffffff' }, 'OV': { bg: '#22c55e', text: '#ffffff' }, 'OmU': { bg: '#f97316', text: '#ffffff' }, 'OmeU': { bg: '#a855f7', text: '#ffffff' }, 'Mongay': { bg: '#ec4899', text: '#ffffff' }, 'Creepy C': { bg: '#ef4444', text: '#ffffff' }, 'InTheMood': { bg: '#14b8a6', text: '#ffffff' }, 'Sneak': { bg: '#0ea5e9', text: '#ffffff' }, 'Classic Sneak': { bg: '#6b7280', text: '#ffffff' }, 'Fetch': { bg: '#d946ef', text: '#ffffff' }, 'Torment Nexus': { bg: '#65a30d', text: '#ffffff' }, 'Ciné Club': { bg: '#0ea5e9', text: '#ffffff' }, 'Queerfilmnacht': { bg: '#c026d3', text: '#ffffff' }, 'FILM & TALK #2030': { bg: '#475569', text: '#ffffff' }, 'Cine en Español': { bg: '#dc2626', text: '#ffffff' }, 'Crafts Club': { bg: '#f59e0b', text: '#ffffff' }, 'Best of Cinema': { bg: '#8b5cf6', text: '#ffffff' }, 'Bis(s) zum Abspann': { bg: '#b91c1c', text: '#ffffff' }, 'Boulevard Noir': { bg: '#4f46e5', text: '#ffffff' }, 'Screen Legends': { bg: '#374151', text: '#ffffff' }, 'SV': { bg: '#78716c', text: '#ffffff' }, 'Festival': { bg: '#d97706', text: '#ffffff' }, 'KF': { bg: '#06b6d4', text: '#ffffff' }, 'Lesung': { bg: '#a16207', text: '#ffffff'}, 'default': { border: '#4b5563', text: '#d1d5db' } };
+    const COLOR_MAP = { 'DF': { bg: '#3b82f6', text: '#ffffff' }, 'OV': { bg: '#22c55e', text: '#ffffff' }, 'OmU': { bg: '#f97316', text: '#ffffff' }, 'OmeU': { bg: '#a855f7', text: '#ffffff' }, 'OmdU': { bg: '#f97316', text: '#ffffff' }, 'Mongay': { bg: '#ec4899', text: '#ffffff' }, 'Creepy C': { bg: '#ef4444', text: '#ffffff' }, 'InTheMood': { bg: '#14b8a6', text: '#ffffff' }, 'Sneak': { bg: '#0ea5e9', text: '#ffffff' }, 'Classic Sneak': { bg: '#6b7280', text: '#ffffff' }, 'Fetch': { bg: '#d946ef', text: '#ffffff' }, 'Torment Nexus': { bg: '#65a30d', text: '#ffffff' }, 'Ciné Club': { bg: '#0ea5e9', text: '#ffffff' }, 'Queerfilmnacht': { bg: '#c026d3', text: '#ffffff' }, 'FILM & TALK #2030': { bg: '#475569', text: '#ffffff' }, 'Cine en Español': { bg: '#dc2626', text: '#ffffff' }, 'Crafts Club': { bg: '#f59e0b', text: '#ffffff' }, 'Best of Cinema': { bg: '#8b5cf6', text: '#ffffff' }, 'Bis(s) zum Abspann': { bg: '#b91c1c', text: '#ffffff' }, 'Boulevard Noir': { bg: '#4f46e5', text: '#ffffff' }, 'Screen Legends': { bg: '#374151', text: '#ffffff' }, 'SV': { bg: '#78716c', text: '#ffffff' }, 'Festival': { bg: '#d97706', text: '#ffffff' }, 'KF': { bg: '#06b6d4', text: '#ffffff' }, 'Lesung': { bg: '#a16207', text: '#ffffff'}, 'default': { border: '#4b5563', text: '#d1d5db' } };
     const TAG_COLOR_MAP = { year: '#be123c', country: '#0e7490', language: '#581c87', director: '#b45309', cast: '#166534', writer: '#374151' };
+
+    const CINEMA_THEMES = {
+        "Babylon Kreuzberg": { location: "Kreuzberg", cssClass: "cinema-theme-babylon-kreuzberg" },
+        "Blauer Stern": { location: "Pankow", cssClass: "cinema-theme-blauer-stern" },
+        "Capitol Dahlem": { location: "Dahlem", cssClass: "cinema-theme-capitol-dahlem" },
+        "Cinema Paris": { location: "Charlottenburg", cssClass: "cinema-theme-cinema-paris" },
+        "Delphi Filmpalast": { location: "Charlottenburg", cssClass: "cinema-theme-delphi-filmpalast" },
+        "delphi LUX": { location: "Charlottenburg", cssClass: "cinema-theme-delphi-lux" },
+        "Filmtheater am Friedrichshain": { location: "Prenzlauer Berg", cssClass: "cinema-theme-filmtheater-am-friedrichshain" },
+        "Kant Kino": { location: "Charlottenburg", cssClass: "cinema-theme-kant-kino" },
+        "Kino International": { location: "Mitte", cssClass: "cinema-theme-kino-international" },
+        "Neues Off": { location: "Neukölln", cssClass: "cinema-theme-neues-off" },
+        "Odeon": { location: "Schöneberg", cssClass: "cinema-theme-odeon" },
+        "Passage": { location: "Neukölln", cssClass: "cinema-theme-passage" },
+        "Rollberg": { location: "Neukölln", cssClass: "cinema-theme-rollberg" },
+        "Yorck": { location: "Kreuzberg", cssClass: "cinema-theme-yorck" },
+        "b-ware! Ladenkino": { location: "Friedrichshain", cssClass: "cinema-theme-neues-off" }
+    };
 
     function setMainContentMargin() {
         if (elements.header && elements.mainContent) {
@@ -399,29 +461,41 @@ document.addEventListener('DOMContentLoaded', () => {
         setupEventListeners();
         setupImageObserver();
         setMainContentMargin();
-        const storedData = localStorage.getItem('yorckData');
-        const cta = document.getElementById('initial-cta');
-        if (storedData) {
-            try {
-                const { films, timestamp } = JSON.parse(storedData);
-                processRawData(films);
-                elements.lastUpdatedEl.textContent = `Updated: ${formatTimestamp(timestamp)}`;
-                setupFilters();
-                renderFilteredResults();
-                if (cta) cta.style.display = 'none';
-            } catch (e) {
-                localStorage.removeItem('yorckData');
-                showStatus('Could not load stored data. Please update listings.', 'error');
+
+        const lastSource = localStorage.getItem('activeSource');
+        if (lastSource) {
+            const storedData = localStorage.getItem(`${lastSource}Data`);
+            if (storedData) {
+                try {
+                    const { data, timestamp } = JSON.parse(storedData);
+                    state.activeSource = lastSource;
+                    state.allSessions = data;
+                    elements.lastUpdatedEl.textContent = `Updated: ${formatTimestamp(timestamp)}`;
+                    elements.initialCta.style.display = 'none';
+                    setupFilters();
+                    renderFilteredResults();
+                } catch (e) {
+                    clearAllData();
+                    showStatus('Could not load stored data. Please update listings.', 'error');
+                }
             }
         } else {
-            showStatus('No data found. Click "Update Listings" to fetch the cinema program.', 'info');
-            if (cta) cta.style.display = 'block';
+            showStatus('No data found. Please select a cinema to load the program.', 'info');
+            elements.initialCta.style.display = 'block';
         }
     }
     
     function setupEventListeners() {
-        elements.fetchBtn?.addEventListener('click', handleFetchAll);
-        elements.clearCacheBtn?.addEventListener('click', () => { localStorage.removeItem('yorckData'); const cta = document.getElementById('initial-cta'); if (cta) cta.style.display = 'block'; elements.filtersPanel.classList.add('hidden'); elements.resultsContainer.innerHTML = ''; elements.lastUpdatedEl.textContent = 'Updated: -'; });
+        elements.fetchBtn?.addEventListener('click', () => handleFetchRequest(state.activeSource));
+        elements.clearCacheBtn?.addEventListener('click', clearAllData);
+        elements.initialCta.querySelectorAll('button[data-source]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const source = e.currentTarget.dataset.source;
+                elements.initialCta.style.display = 'none';
+                handleFetchRequest(source);
+            });
+        });
+
         elements.emojiToggleBtn?.addEventListener('click', () => {
             elements.emojiInput.value = elements.emojiInput.value.startsWith('❓') ? elements.emojiInput.value.substring(1) : '❓' + elements.emojiInput.value;
         });
@@ -470,12 +544,23 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function clearAllData() {
+        localStorage.removeItem('yorckData');
+        localStorage.removeItem('bwareData');
+        localStorage.removeItem('activeSource');
+        elements.initialCta.style.display = 'block';
+        elements.filtersPanel.classList.add('hidden');
+        elements.resultsContainer.innerHTML = '';
+        elements.lastUpdatedEl.textContent = 'Updated: -';
+        state.allSessions = [];
+        state.activeSource = null;
+    }
+
     function scrollToTop() {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     document.getElementById('nav-filters-desktop')?.addEventListener('click', (e) => { e.preventDefault(); scrollToTop(); });
-    document.getElementById('load-yorck-data')?.addEventListener('click', (e) => { e.preventDefault(); document.getElementById('fetch-btn').click(); if (document.getElementById('initial-cta')) document.getElementById('initial-cta').style.display = 'none'; });
 
     function setupImageObserver() {
         state.imageObserver = new IntersectionObserver((entries, observer) => {
@@ -493,7 +578,133 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }, { rootMargin: "300px 0px" });
     }
+    
+    // --- Main Fetch Dispatcher ---
+    async function handleFetchRequest(source) {
+        if (!source) {
+            showStatus('No cinema source selected. Please choose one from the main page.', 'error');
+            return;
+        }
+        showStatus(`Fetching listings for ${source}...`, 'loading');
+        if (elements.fetchBtn) { elements.fetchBtn.disabled = true; elements.fetchBtn.textContent = 'Updating...'; }
 
+        try {
+            let data;
+            if (source === 'yorck') {
+                data = await fetchYorckData();
+            } else if (source === 'bware') {
+                data = await fetchBWareData();
+            } else {
+                throw new Error('Unknown data source');
+            }
+
+            state.allSessions = data;
+            state.activeSource = source;
+            const timestamp = new Date().toISOString();
+            localStorage.setItem(`${source}Data`, JSON.stringify({ data, timestamp }));
+            localStorage.setItem('activeSource', source);
+
+            if (elements.lastUpdatedEl) elements.lastUpdatedEl.textContent = `Updated: ${formatTimestamp(timestamp)}`;
+            showStatus('Listings updated successfully!', 'success');
+            setTimeout(() => elements.statusContainer.innerHTML = '', 3000);
+            
+            setupFilters();
+            renderFilteredResults();
+        } catch (error) {
+            console.error('Error fetching data:', error);
+            showStatus(`Failed to update listings. Error: ${error.message}`, 'error');
+        } finally {
+            if (elements.fetchBtn) { elements.fetchBtn.disabled = false; elements.fetchBtn.textContent = 'Update Listings'; }
+        }
+    }
+    
+    // --- B-Ware! Ladenkino Data Fetching & Processing ---
+    async function fetchBWareData() {
+        const response = await fetch(`${CORS_PROXY}${encodeURIComponent(BWARE_API_URL)}`);
+        if (!response.ok) throw new Error(`Network error: ${response.status}`);
+        const rawData = await response.json();
+        return processBWareData(rawData);
+    }
+
+    function processBWareData(data) {
+        const moviesMap = new Map();
+        for (const movieId in data.movies) {
+            const movieData = data.movies[movieId];
+            const film = {
+                title: movieData.name,
+                slug: movieData.id,
+                runtime: movieData.duration,
+                tagline: movieData.short_description,
+                mainLabel: movieData.genres?.[0]?.name,
+                heroImage: { fields: { image: { fields: { file: { url: movieData.lazyImage } } } } },
+                extraDetails: {
+                    longDescription: movieData.description,
+                    director: movieData.directors?.map(d => d.name).join(', '),
+                    fullCast: movieData.actors?.map(a => a.name).join(', '),
+                    country: movieData.productionCountries?.join(', '),
+                    year: movieData.released ? new Date(movieData.released).getFullYear() : null,
+                    originalLanguage: null,
+                    writers: null // Explicitly set writers to null
+                }
+            };
+            moviesMap.set(movieId, film);
+        }
+
+        const auditoriumMap = {
+            1267: "Saal 1: Romy Royal",
+            2705: "Saal 2: Petit Titan",
+            2707: "Saal 3: Wohnzimmer",
+            3267: "FMP",
+            3387: "vor wien",
+            3439: "Prinzessinnengärten"
+        };
+
+        return data.shows.map(show => {
+            const film = moviesMap.get(show.movieId.toString());
+            const session = {
+                startTime: show.beginning.isoFull,
+                formats: show.flags.map(f => f.name)
+            };
+            const cinema = {
+                name: 'b-ware! Ladenkino',
+                auditorium: auditoriumMap[show.auditoriumId] || 'Unknown Saal'
+            };
+            return { film, session, cinema };
+        });
+    }
+
+    // --- Yorck Kino Data Fetching & Processing ---
+    async function fetchYorckData() {
+        showStatus('Fetching film listings...', 'loading');
+        const response = await fetch(`${CORS_PROXY}${encodeURIComponent(YORCK_PROGRAM_URL)}`);
+        if (!response.ok) throw new Error(`Network error: ${response.status}`);
+        
+        const htmlText = await response.text();
+        const doc = new DOMParser().parseFromString(htmlText, 'text/html');
+        const filmsData = JSON.parse(doc.getElementById('__NEXT_DATA__').textContent).props.pageProps.films;
+        if (!filmsData) throw new Error('Scraping failed: Film data missing.');
+
+        const uniqueFilms = Object.values(filmsData.reduce((acc, film) => {
+            if (film.fields.slug && !acc[film.fields.slug]) acc[film.fields.slug] = film;
+            return acc;
+        }, {}));
+        
+        const detailPromises = uniqueFilms.map((film, index) => {
+            showStatus(`Fetching details for ${film.fields.title} (${index + 1}/${uniqueFilms.length})...`, 'loading');
+            return fetchFilmDetails(film.fields.slug);
+        });
+
+        const allDetails = await Promise.all(detailPromises);
+        const detailsMap = new Map(uniqueFilms.map((film, i) => [film.fields.slug, allDetails[i]]));
+
+        filmsData.forEach(film => {
+            const details = detailsMap.get(film.fields.slug);
+            if (details) film.fields.extraDetails = details;
+        });
+
+        return processYorckData(filmsData);
+    }
+    
     async function fetchFilmDetails(filmSlug) {
         try {
             const filmUrl = `${CORS_PROXY}${encodeURIComponent(`https://www.yorck.de/en/films/${filmSlug}`)}`;
@@ -502,22 +713,14 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const htmlText = await response.text();
             const doc = new DOMParser().parseFromString(htmlText, 'text/html');
-            
             const nextDataScript = doc.getElementById('__NEXT_DATA__');
-            if (!nextDataScript) {
-                console.warn(`__NEXT_DATA__ script not found for ${filmSlug}`);
-                return null;
-            }
+            if (!nextDataScript) return null;
             
             const jsonData = JSON.parse(nextDataScript.textContent);
             const filmData = jsonData?.props?.pageProps?.film?.fields;
-            
-            if (!filmData) {
-                console.warn(`Film data structure not found in JSON for ${filmSlug}`);
-                return null;
-            }
+            if (!filmData) return null;
 
-            const details = {
+            return {
                 longDescription: filmData.about ? filmData.about.replace(/<\/?p>/g, '') : (filmData.tagline || ''),
                 director: filmData.director,
                 fullCast: filmData.cast,
@@ -526,66 +729,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 writers: filmData.writer,
                 originalLanguage: filmData.originalLanguage
             };
-
-            return details;
         } catch (error) {
             console.warn(`Failed to fetch and parse details for ${filmSlug}:`, error);
             return null;
         }
     }
-
-
-    async function handleFetchAll() {
-        showStatus('Fetching film listings...', 'loading');
-        if (elements.fetchBtn) { elements.fetchBtn.disabled = true; elements.fetchBtn.textContent = 'Updating...'; }
-        
-        try {
-            const response = await fetch(`${CORS_PROXY}${encodeURIComponent(YORCK_PROGRAM_URL)}`);
-            if (!response.ok) throw new Error(`Network error: ${response.status}`);
-            const htmlText = await response.text();
-            const doc = new DOMParser().parseFromString(htmlText, 'text/html');
-            const films = JSON.parse(doc.getElementById('__NEXT_DATA__').textContent).props.pageProps.films;
-            if (!films) throw new Error('Scraping failed: Film data missing.');
-
-            const uniqueFilms = Object.values(films.reduce((acc, film) => {
-                if (film.fields.slug && !acc[film.fields.slug]) acc[film.fields.slug] = film;
-                return acc;
-            }, {}));
-            
-            const detailPromises = uniqueFilms.map((film, index) => {
-                showStatus(`Fetching details for ${film.fields.title} (${index + 1}/${uniqueFilms.length})...`, 'loading');
-                return fetchFilmDetails(film.fields.slug);
-            });
-
-            const allDetails = await Promise.all(detailPromises);
-            const detailsMap = new Map(uniqueFilms.map((film, i) => [film.fields.slug, allDetails[i]]));
-
-            films.forEach(film => {
-                const details = detailsMap.get(film.fields.slug);
-                if (details) film.fields.extraDetails = details;
-            });
-
-            localStorage.setItem('yorckData', JSON.stringify({ films, timestamp: new Date().toISOString() }));
-            processRawData(films);
-            
-            if (elements.lastUpdatedEl) elements.lastUpdatedEl.textContent = `Updated: ${formatTimestamp(new Date().toISOString())}`;
-            showStatus('Listings updated successfully!', 'success');
-            setTimeout(() => elements.statusContainer.innerHTML = '', 3000);
-            
-            setupFilters();
-            renderFilteredResults();
-
-        } catch (error) {
-            console.error('Error fetching data:', error);
-            showStatus(`Failed to update listings. Error: ${error.message}`, 'error');
-        } finally {
-            if (elements.fetchBtn) { elements.fetchBtn.disabled = false; elements.fetchBtn.textContent = 'Update Listings'; }
-        }
+    
+    function processYorckData(films) {
+        return films.flatMap(film => 
+            (film.fields.sessions || []).map(sessionRef => ({ 
+                film: film.fields, 
+                session: sessionRef.fields, 
+                cinema: sessionRef.fields.cinema?.fields 
+            })).filter(item => item.cinema)
+        );
     }
-
-
+    
+    // --- Common Functions (mostly unchanged) ---
     function formatTimestamp(isoString) { try { const d = new Date(isoString); const pad = n => String(n).padStart(2, '0'); return `${d.getFullYear()}.${pad(d.getMonth()+1)}.${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`; } catch (e) { return isoString; } }
-    function processRawData(films) { state.allSessions = films.flatMap(film => (film.fields.sessions || []).map(sessionRef => ({ film: film.fields, session: sessionRef.fields, cinema: sessionRef.fields.cinema?.fields })).filter(item => item.cinema)); }
 
     function setupFilters() {
         const createRadioGroup = (items, name) => items.map((item, index) => `<div><input type="radio" id="${name}-${item.value}" name="${name}" value="${item.value}" class="hidden" ${index === 0 ? 'checked' : ''}><label for="${name}-${item.value}" class="block cursor-pointer rounded-md py-2 px-4 text-center">${item.label}</label></div>`).join('');
@@ -602,8 +763,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const uniqueTitles = [...new Set(state.allSessions.map(s => s.film.title))].sort();
         const uniqueCinemas = [...new Set(state.allSessions.map(s => s.cinema.name.trim()))].sort();
         const uniqueGenres = [...new Set(state.allSessions.map(s => s.film.mainLabel).filter(g => g))].sort();
-        const uniqueVersions = STANDARD_VERSIONS.filter(v => allFormats.includes(v));
-        const uniqueSpecials = allFormats.filter(f => !STANDARD_VERSIONS.includes(f)).sort();
+        
+        let uniqueVersions, uniqueSpecials;
+        if (state.activeSource === 'bware') {
+            uniqueVersions = [...new Set(allFormats.filter(f => ['OmdU', 'OmeU', 'OV'].includes(f)))];
+            uniqueSpecials = allFormats.filter(f => !uniqueVersions.includes(f)).sort();
+        } else {
+            uniqueVersions = STANDARD_VERSIONS.filter(v => allFormats.includes(v));
+            uniqueSpecials = allFormats.filter(f => !STANDARD_VERSIONS.includes(f)).sort();
+        }
 
         const setupDropdown = (options) => {
             const { buttonId, dropdownId, listId, clearId, searchId, stateKey, placeholder, type } = options;
@@ -638,8 +806,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (searchInput) {
                  searchInput.addEventListener('input', (e) => { 
                     const query = e.target.value.toLowerCase();
-                    const listItems = list.querySelectorAll('li');
-                    listItems.forEach(li => {
+                    list.querySelectorAll('li').forEach(li => {
                        const label = li.querySelector('label');
                        if (label) {
                            const text = label.textContent.toLowerCase();
@@ -723,10 +890,18 @@ document.addEventListener('DOMContentLoaded', () => {
     function createShowtimeButtons(sessions, indexMap) { return sessions.sort((a, b) => new Date(a.session.startTime) - new Date(b.session.startTime)).map(item => { const time = new Date(item.session.startTime); const format = (item.session.formats || [])[0]; const color = COLOR_MAP[format]?.bg || COLOR_MAP['default'].border; return `<button class="showtime-btn border-gray-700 bg-gray-900/50 rounded-lg p-2 text-center w-24" style="border-color:${color}" data-session-index="${indexMap.get(item)}"><span class="font-bold text-lg">${time.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</span><span class="block text-xs text-gray-400">${(item.session.formats || []).join(', ')}</span></button>`; }).join(''); }
     
     const createFilmHeaderHTML = (film) => {
-        const posterUrl = film.heroImage?.fields?.image?.fields?.file?.url ? `https:${film.heroImage.fields.image.fields.file.url}` : 'https://via.placeholder.com/320x180.png?text=No+Image';
-        const filmUrl = `https://www.yorck.de/en/films/${film.slug}`;
+        const posterUrl = film.heroImage?.fields?.image?.fields?.file?.url ? (film.heroImage.fields.image.fields.file.url.startsWith('https:') ? film.heroImage.fields.image.fields.file.url : `https:${film.heroImage.fields.image.fields.file.url}`) : 'https://via.placeholder.com/320x180.png?text=No+Image';
+        const filmUrl = state.activeSource === 'yorck' ? `https://www.yorck.de/en/films/${film.slug}` : `https://www.kinoheld.de/kino-berlin/b-ware-ladenkino/film/${film.slug}`;
+
         const extraDetails = film.extraDetails || {};
         
+        let imageContainerClasses = '';
+        if (state.activeSource === 'bware') {
+            imageContainerClasses = 'flex-shrink-0 w-full sm:w-52 aspect-[2/3]';
+        } else { // yorck or default
+            imageContainerClasses = 'flex-shrink-0 w-full aspect-video sm:w-72 md:w-1/3 sm:aspect-[3/2]';
+        }
+
         const isTagActive = (type, value) => state.activeTags.some(tag => tag.type === type && tag.value === value);
         
         const createClickableList = (type, listString) => {
@@ -785,10 +960,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="text-sm flex flex-wrap gap-x-2 justify-center">${content}</div>
                     </div>`;
         }
+        
+        const writersHTML = extraDetails.writers
+            ? `<div><strong class="font-semibold text-gray-400 block w-24 inline-block">Writer:</strong> ${createClickableList('writer', extraDetails.writers)}</div>`
+            : '';
 
         return `
             <div class="flex flex-col sm:flex-row gap-6">
-                <a href="${filmUrl}" target="_blank" rel="noopener noreferrer" class="flex-shrink-0 w-full aspect-video sm:w-72 md:w-1/3 sm:aspect-[3/2]">
+                <a href="${filmUrl}" target="_blank" rel="noopener noreferrer" class="${imageContainerClasses}">
                     <div class="lazy-load-placeholder" data-src="${posterUrl}" data-alt="${film.title} Poster"></div>
                 </a>
                 <div class="flex-grow flex flex-col">
@@ -805,7 +984,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="space-y-3 text-sm mt-auto">
                         <div><strong class="font-semibold text-gray-400 block w-24 inline-block">Director:</strong> ${createClickableList('director', extraDetails.director)}</div>
                         <div><strong class="font-semibold text-gray-400 block w-24 inline-block">Cast:</strong> ${createClickableList('cast', extraDetails.fullCast)}</div>
-                        <div><strong class="font-semibold text-gray-400 block w-24 inline-block">Writer:</strong> ${createClickableList('writer', extraDetails.writers)}</div>
+                        ${writersHTML}
                     </div>
                 </div>
             </div>`;
@@ -837,9 +1016,41 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.resultsContainer.innerHTML = html;
     };
 
+    function createCinemaHeaderHTML(cinemaName, level = 'h3') {
+        const theme = CINEMA_THEMES[cinemaName.trim()];
+        if (theme) {
+            return `
+                <div class="cinema-header-wrapper">
+                    <${level} class="font-bold text-white">
+                        <span class="cinema-name ${theme.cssClass}">${cinemaName}</span>
+                        <span class="cinema-location">${theme.location}</span>
+                    </${level}>
+                </div>
+            `;
+        }
+        return `<h3 class="text-2xl font-semibold text-white border-b-2 border-amber-400 pb-2 mb-6 mt-8">${cinemaName}</h3>`;
+    }
+
+    function createThemedCinemaTitleHTML(cinemaName) {
+        const theme = CINEMA_THEMES[cinemaName.trim()];
+        if (theme) {
+            let fontSizeClass = 'text-xl';
+            if (theme.cssClass === 'cinema-theme-cinema-paris') {
+                fontSizeClass = 'text-3xl';
+            }
+            return `
+                <div>
+                    <div class="${theme.cssClass} ${fontSizeClass} font-bold text-white leading-tight">${cinemaName}</div>
+                    <div class="text-xs italic text-gray-400 font-sans">${theme.location}</div>
+                </div>
+            `;
+        }
+        return `<p class="font-semibold">${cinemaName}</p>`;
+    }
+
     const dateHeader = date => `<h3 class="text-2xl font-semibold text-white border-b-2 border-amber-400 pb-2 mb-6 mt-8">${new Date(date + 'T00:00:00Z').toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })}</h3>`;
-    const cinemaHeader = name => `<h3 class="text-2xl font-semibold text-white border-b-2 border-amber-400 pb-2 mb-6 mt-8">${name}</h3>`;
-    const cinemaSubHeader = name => `<h4 class="text-xl font-bold text-amber-400 mb-4">${name}</h4>`;
+    const cinemaHeader = name => createCinemaHeaderHTML(name, 'h3');
+    const cinemaSubHeader = name => createCinemaHeaderHTML(name, 'h4');
     const dateSubHeader = date => `<h4 class="text-xl font-bold text-amber-400 mb-4">${new Date(date + 'T00:00:00Z').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'UTC' })}</h4>`;
     
     const renderGroupedByDate = s => renderGroupedBy(s, i => i.session.startTime.split('T')[0], i => i.cinema.name.trim(), dateHeader, cinemaSubHeader);
@@ -879,7 +1090,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 Object.keys(groupedByCinema).sort().forEach((cinemaName, index) => {
                     const bgColorClass = index % 2 === 1 ? 'bg-gray-900/40' : '';
                     datesHTML += `<div class="p-3 rounded-md mb-2 ${bgColorClass}">
-                        <p class="font-semibold">${cinemaName}</p>
+                        ${createThemedCinemaTitleHTML(cinemaName)}
                         <div class="flex flex-wrap gap-2 mt-1">${createShowtimeButtons(groupedByCinema[cinemaName], indexMap)}</div>
                     </div>`;
                 });
@@ -938,11 +1149,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const emoji = elements.emojiInput.value || '🍿';
         const extra = film.extraDetails || {};
         
-        const formatIcsDate = (date) => date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
         const formatIcsDateWithTZ = (date) => { const pad = (n) => String(n).padStart(2, '0'); return `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}T${pad(date.getHours())}${pad(date.getMinutes())}${pad(date.getSeconds())}`; };
         const escapeIcsText = (text) => String(text || '').replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n');
 
-        const filmUrl = `https://www.yorck.de/en/films/${film.slug}`;
+        const filmUrl = state.activeSource === 'yorck' ? `https://www.yorck.de/en/films/${film.slug}` : `https://www.kinoheld.de/kino-berlin/b-ware-ladenkino/film/${film.slug}`;
 
         let description = `Synopsis: ${escapeIcsText(extra.longDescription || film.tagline)}\\n\\n`;
         if (extra.director) description += `Director: ${escapeIcsText(extra.director)}\\n`;
@@ -956,9 +1166,9 @@ document.addEventListener('DOMContentLoaded', () => {
         description += `More Info: ${filmUrl}`;
 
         const vTimezone = ['BEGIN:VTIMEZONE', 'TZID:Europe/Berlin', 'BEGIN:DAYLIGHT', 'TZOFFSETFROM:+0100', 'TZOFFSETTO:+0200', 'TZNAME:CEST', 'DTSTART:19700329T020000', 'RRULE:FREQ=YEARLY;BYDAY=-1SU;BYMONTH=3', 'END:DAYLIGHT', 'BEGIN:STANDARD', 'TZOFFSETFROM:+0200', 'TZOFFSETTO:+0100', 'TZNAME:CET', 'DTSTART:19701025T030000', 'RRULE:FREQ=YEARLY;BYDAY=-1SU;BYMONTH=10', 'END:STANDARD', 'END:VTIMEZONE'].join('\r\n');
-        return ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//YorckPlanner//NONSGML v2.3//EN', vTimezone, 'BEGIN:VEVENT', `UID:${now.getTime()}-${film.vistaId || film.slug}@yorck.de`, `DTSTAMP:${formatIcsDate(now)}`, `DTSTART;TZID=Europe/Berlin:${formatIcsDateWithTZ(startDate)}`, `DTEND;TZID=Europe/Berlin:${formatIcsDateWithTZ(endDate)}`, `SUMMARY:${escapeIcsText(`${emoji} ${film.title}`)}`, `DESCRIPTION:${description}`, `LOCATION:${escapeIcsText(cinemaName)}`, `URL;VALUE=URI:${filmUrl}`, 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+        return ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//KinoPlanner//NONSGML v1.0//EN', vTimezone, 'BEGIN:VEVENT', `UID:${now.getTime()}-${film.slug}@kinosearch.app`, `DTSTAMP:${now.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z'}`, `DTSTART;TZID=Europe/Berlin:${formatIcsDateWithTZ(startDate)}`, `DTEND;TZID=Europe/Berlin:${formatIcsDateWithTZ(endDate)}`, `SUMMARY:${escapeIcsText(`${emoji} ${film.title}`)}`, `DESCRIPTION:${description}`, `LOCATION:${escapeIcsText(cinemaName)}`, `URL;VALUE=URI:${filmUrl}`, 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
     }
-    function downloadIcsFile(content, filmSlug, startTime) { const date = new Date(startTime); const [y, m, d, h, min] = [date.getFullYear(), String(date.getMonth() + 1).padStart(2, '0'), String(date.getDate()).padStart(2, '0'), String(date.getHours()).padStart(2, '0'), String(date.getMinutes()).padStart(2, '0')]; const safeSlug = (filmSlug || 'film').replace(/[^a-z0-9]/gi, '-').toLowerCase(); const filename = `${y}-${m}-${d}-${h}${min}-${safeSlug}.ics`; const blob = new Blob([content], { type: 'text/calendar;charset=utf-8' }); const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = filename; document.body.appendChild(link); link.click(); document.body.removeChild(link); URL.revokeObjectURL(link.href); }
+    function downloadIcsFile(content, filmSlug, startTime) { const date = new Date(startTime); const [y, m, d, h, min] = [date.getFullYear(), String(date.getMonth() + 1).padStart(2, '0'), String(date.getDate()).padStart(2, '0'), String(date.getHours()).padStart(2, '0'), String(date.getMinutes()).padStart(2, '0')]; const safeSlug = (filmSlug || 'film').toString().replace(/[^a-z0-9]/gi, '-').toLowerCase(); const filename = `${y}-${m}-${d}-${h}${min}-${safeSlug}.ics`; const blob = new Blob([content], { type: 'text/calendar;charset=utf-8' }); const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = filename; document.body.appendChild(link); link.click(); document.body.removeChild(link); URL.revokeObjectURL(link.href); }
     function showStatus(message, type = 'info') {
         elements.statusContainer.innerHTML = '';
         if (!message && type !== 'loading') return;
