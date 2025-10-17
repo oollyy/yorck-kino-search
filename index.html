@@ -109,7 +109,7 @@
         #mobile-filters-mount .glass-panel { background: transparent; border: none; box-shadow: none; padding: 0 !important; margin-bottom: 0 !important; }
         .no-scroll { overflow: hidden !important; height: 100%; }
 
-        @media (max-width: 1023px) { /* Changed breakpoint to lg */
+        @media (max-width: 1023px) {
             .nav-desktop { display: none; }
             .mobile-nav-button { display: inline-flex; }
             #main-filters-container { display: none; }
@@ -134,9 +134,6 @@
                     <button id="fetch-btn" class="header-control bg-amber-400 text-gray-900 font-bold hover:bg-amber-500 transition-colors duration-200">Update Listings</button>
                     <button id="clear-cache-btn" class="header-control bg-gray-700 text-white font-semibold hover:bg-red-600 transition-colors duration-200 ml-3">Clear Cache</button>
                     <div id="last-updated" class="text-sm text-gray-300 ml-4">Updated: -</div>
-                    <label for="emoji-input" class="text-sm font-medium text-gray-300 ml-4 mr-2">Calendar Emoji:</label>
-                    <input type="text" id="emoji-input" value="🍿" class="form-element p-2 w-16 text-center" style="height:36px;">
-                    <button id="emoji-toggle-btn" title="Toggle 'Unsure' Emoji" class="header-control bg-gray-700 text-white font-bold hover:bg-gray-600 transition-colors duration-200 ml-2">❓</button>
                     <a href="#filters-panel" id="nav-filters-desktop" class="header-control bg-gray-800 text-gray-200 text-sm ml-4 hover:bg-gray-700">Filters</a>
                 </nav>
             </div>
@@ -156,12 +153,19 @@
     </div>
     
     <div id="filters-panel" class="hidden glass-panel p-4 md:p-6 mb-6">
-        <!-- ROW 1: Search, Cinema, Genre, Version, Specials -->
+        <!-- ROW 1: Title, Cinema, Genre, Version, Specials -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
             <div>
                 <div id="filters-anchor" class="relative -top-2"></div>
-                <label for="search-input" class="block text-sm font-medium text-gray-300 mb-2">Search by Title</label>
-                <input type="text" id="search-input" placeholder="e.g., The Trial" class="form-element w-full">
+                <label class="block text-sm font-medium text-gray-300 mb-2">Filter by Title</label>
+                <div class="relative">
+                    <button id="titleDropdownButton" type="button" class="w-full text-left form-element" aria-expanded="false">All Films</button>
+                    <div id="titleDropdown" class="dropdown-panel hidden bg-gray-800 rounded-md shadow-lg w-full border border-gray-700">
+                        <div class="p-2 border-b border-gray-700"><input type="text" id="title-search-input" placeholder="Search title..." class="form-element w-full" /></div>
+                        <div class="p-2 flex justify-end border-b border-gray-700"><button id="title-clear-selection" class="text-sm text-amber-400 font-semibold hover:text-amber-300 disabled:text-gray-500">Clear</button></div>
+                        <ul id="title-list" class="max-h-48 overflow-y-auto text-sm text-gray-200 p-2 space-y-1"></ul>
+                    </div>
+                </div>
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-300 mb-2">Filter by Cinema</label>
@@ -206,25 +210,34 @@
             </div>
         </div>
         
-        <!-- ROW 2 & 3: Quick Toggles & View Switcher -->
         <div class="mt-6 space-y-4">
             <div id="time-filter" class="filter-toggle-group grid grid-cols-2 md:grid-cols-4 gap-2"></div>
             <div id="quick-date-filter" class="filter-toggle-group grid grid-cols-3 md:grid-cols-5 gap-2"></div>
-            <div class="flex items-center gap-4 pt-4 mt-4 border-t border-gray-700/50">
-                <div class="flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                    <label class="text-sm font-medium text-gray-300">View by</label>
+            <div class="flex items-center justify-between gap-4 pt-4 mt-4 border-t border-gray-700/50">
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        <label class="text-sm font-medium text-gray-300">View by</label>
+                    </div>
+                    <div id="view-toggle" class="view-toggle-group flex items-center gap-2">
+                        <button data-view="film" class="px-3 py-2 rounded-md flex items-center justify-center gap-2" title="Group by Film">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pointer-events-none"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg>
+                            <span class="text-sm pointer-events-none">Film</span>
+                        </button>
+                        <button data-view="date" class="px-3 py-2 rounded-md flex items-center justify-center gap-2" title="Group by Date">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pointer-events-none"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                            <span class="text-sm pointer-events-none">Date</span>
+                        </button>
+                        <button data-view="cinema" class="px-3 py-2 rounded-md flex items-center justify-center gap-2" title="Group by Cinema">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pointer-events-none"><path d="M20 9v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9"/><path d="M20 5H4a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Z"/><path d="M12 22V9"/></svg>
+                            <span class="text-sm pointer-events-none">Cinema</span>
+                        </button>
+                    </div>
                 </div>
-                <div id="view-toggle" class="view-toggle-group flex items-center gap-2">
-                    <button data-view="film" class="p-2 rounded-md h-10 w-10 flex items-center justify-center" title="Group by Film">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg>
-                    </button>
-                    <button data-view="date" class="p-2 rounded-md h-10 w-10 flex items-center justify-center" title="Group by Date">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                    </button>
-                    <button data-view="cinema" class="p-2 rounded-md h-10 w-10 flex items-center justify-center" title="Group by Cinema">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 9v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9"/><path d="M20 5H4a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Z"/><path d="M12 22V9"/></svg>
-                    </button>
+                <div class="flex items-center gap-2">
+                    <label for="emoji-input" class="text-sm font-medium text-gray-300">Emoji</label>
+                    <input type="text" id="emoji-input" value="🍿" class="form-element p-2 w-16 text-center" style="height:36px;">
+                    <button id="emoji-toggle-btn" title="Toggle 'Unsure' Emoji" class="header-control bg-gray-700 text-white font-bold hover:bg-gray-600">❓</button>
                 </div>
             </div>
         </div>
@@ -241,13 +254,8 @@
             </header>
             <div class="overflow-y-auto p-4">
                 <div class="grid grid-cols-2 gap-4 mb-6">
-                     <button id="mobile-fetch-btn" class="header-control bg-amber-400 text-gray-900 font-bold hover:bg-amber-500 transition-colors duration-200 justify-center">Update Listings</button>
-                    <button id="mobile-clear-cache-btn" class="header-control bg-gray-700 text-white font-semibold hover:bg-red-600 transition-colors duration-200 justify-center">Clear Cache</button>
-                </div>
-                 <div class="flex items-center gap-2 mb-6">
-                    <label for="mobile-emoji-input" class="text-sm font-medium text-gray-300">Emoji:</label>
-                    <input type="text" id="mobile-emoji-input" value="🍿" class="form-element p-2 w-16 text-center" style="height:36px;">
-                    <button id="mobile-emoji-toggle-btn" title="Toggle 'Unsure' Emoji" class="header-control bg-gray-700 text-white font-bold hover:bg-gray-600 transition-colors duration-200 ml-auto">❓</button>
+                     <button id="mobile-fetch-btn" class="header-control bg-amber-400 text-gray-900 font-bold hover:bg-amber-500 justify-center">Update Listings</button>
+                    <button id="mobile-clear-cache-btn" class="header-control bg-gray-700 text-white font-semibold hover:bg-red-600 justify-center">Clear Cache</button>
                 </div>
                 <div id="mobile-filters-mount"></div>
             </div>
@@ -271,7 +279,6 @@ document.addEventListener('DOMContentLoaded', () => {
         statusContainer: document.getElementById('status-container'),
         resultsContainer: document.getElementById('results-container'),
         filtersPanel: document.getElementById('filters-panel'),
-        searchInput: document.getElementById('search-input'),
         timeFilterContainer: document.getElementById('time-filter'),
         viewToggle: document.getElementById('view-toggle'),
     };
@@ -281,6 +288,7 @@ document.addEventListener('DOMContentLoaded', () => {
         currentlyFilteredSessions: [], 
         imageObserver: null,
         groupBy: 'film',
+        selectedTitles: [],
         selectedCinemas: ['all'],
         selectedGenres: [],
         selectedVersions: [],
@@ -324,10 +332,7 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.clearCacheBtn?.addEventListener('click', () => { localStorage.removeItem('yorckData'); const cta = document.getElementById('initial-cta'); if (cta) cta.style.display = 'block'; elements.filtersPanel.classList.add('hidden'); elements.resultsContainer.innerHTML = ''; elements.lastUpdatedEl.textContent = 'Updated: -'; });
         elements.emojiToggleBtn?.addEventListener('click', () => {
             elements.emojiInput.value = elements.emojiInput.value.startsWith('❓') ? elements.emojiInput.value.substring(1) : '❓' + elements.emojiInput.value;
-            document.getElementById('mobile-emoji-input').value = elements.emojiInput.value;
         });
-        const debouncedRender = debounce(renderFilteredResults, 250);
-        elements.searchInput?.addEventListener('input', debouncedRender);
         elements.timeFilterContainer?.addEventListener('change', renderFilteredResults);
         elements.viewToggle?.addEventListener('click', (e) => {
             const button = e.target.closest('button[data-view]');
@@ -414,13 +419,14 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.viewToggle?.querySelector(`button[data-view="${state.groupBy}"]`)?.classList.add('active');
 
         const allFormats = [...new Set(state.allSessions.flatMap(s => s.session.formats || []))];
+        const uniqueTitles = [...new Set(state.allSessions.map(s => s.film.title))].sort();
         const uniqueCinemas = [...new Set(state.allSessions.map(s => s.cinema.name.trim()))].sort();
         const uniqueGenres = [...new Set(state.allSessions.map(s => s.film.mainLabel).filter(g => g))].sort();
         const uniqueVersions = STANDARD_VERSIONS.filter(v => allFormats.includes(v));
         const uniqueSpecials = allFormats.filter(f => !STANDARD_VERSIONS.includes(f)).sort();
 
         const setupDropdown = (options) => {
-            const { buttonId, dropdownId, listId, clearId, stateKey, placeholder, type } = options;
+            const { buttonId, dropdownId, listId, clearId, searchId, stateKey, placeholder, type } = options;
             const button = document.getElementById(buttonId); const dropdown = document.getElementById(dropdownId); const list = document.getElementById(listId); const clearBtn = document.getElementById(clearId); if (!button || !dropdown || !list) return;
             list.innerHTML = '';
             if (type === 'cinema') { list.innerHTML = `<label for="cinema-all" class="flex items-center w-full p-2 rounded-md cursor-pointer hover:bg-gray-700 [&:has(input:checked)]:bg-blue-800/50"><input type="checkbox" id="cinema-all" class="mr-3 w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500" checked><span class="font-semibold">All Cinemas</span></label>`; }
@@ -448,31 +454,31 @@ document.addEventListener('DOMContentLoaded', () => {
                     syncSelection();
                 });
             }
-            button.addEventListener('click', (e) => { e.stopPropagation(); dropdown.classList.toggle('hidden'); });
+            const searchInput = searchId ? document.getElementById(searchId) : null;
+            if (searchInput) searchInput.addEventListener('input', (e) => { const q = e.target.value.toLowerCase(); list.querySelectorAll('li').forEach(li => { li.style.display = li.innerText.toLowerCase().includes(q) ? '' : 'none'; }); });
+            button.addEventListener('click', (e) => { e.stopPropagation(); dropdown.classList.toggle('hidden'); if(searchInput) searchInput.focus(); });
             syncSelection();
         };
 
-        setupDropdown({ buttonId: 'cinemaDropdownButton', dropdownId: 'cinemaDropdown', listId: 'cinema-list', clearId: 'cinema-clear-selection', stateKey: 'selectedCinemas', placeholder: 'All Cinemas', items: uniqueCinemas, type: 'cinema' });
+        setupDropdown({ buttonId: 'titleDropdownButton', dropdownId: 'titleDropdown', listId: 'title-list', clearId: 'title-clear-selection', searchId: 'title-search-input', stateKey: 'selectedTitles', placeholder: 'All Films', items: uniqueTitles, type: 'title' });
+        setupDropdown({ buttonId: 'cinemaDropdownButton', dropdownId: 'cinemaDropdown', listId: 'cinema-list', clearId: 'cinema-clear-selection', searchId: 'cinema-search-input', stateKey: 'selectedCinemas', placeholder: 'All Cinemas', items: uniqueCinemas, type: 'cinema' });
         setupDropdown({ buttonId: 'genreDropdownButton', dropdownId: 'genreDropdown', listId: 'genre-list', clearId: 'genre-clear-selection', stateKey: 'selectedGenres', placeholder: 'All Genres', items: uniqueGenres, type: 'genre' });
         setupDropdown({ buttonId: 'versionDropdownButton', dropdownId: 'versionDropdown', listId: 'version-list', clearId: 'version-clear-selection', stateKey: 'selectedVersions', placeholder: 'All Versions', items: uniqueVersions, type: 'version' });
         setupDropdown({ buttonId: 'specialsDropdownButton', dropdownId: 'specialsDropdown', listId: 'specials-list', clearId: 'specials-clear-selection', stateKey: 'selectedSpecials', placeholder: 'All Specials', items: uniqueSpecials, type: 'specials' });
         
-        const cinemaSearchInput = document.getElementById('cinema-search-input');
-        if (cinemaSearchInput) cinemaSearchInput.addEventListener('input', (e) => { const q = e.target.value.toLowerCase(); document.querySelectorAll('#cinema-list li').forEach(li => { li.style.display = li.innerText.toLowerCase().includes(q) ? '' : 'none'; }); });
-
-        document.addEventListener('click', () => { ['cinemaDropdown', 'genreDropdown', 'versionDropdown', 'specialsDropdown'].forEach(id => document.getElementById(id)?.classList.add('hidden')); });
+        document.addEventListener('click', () => { ['titleDropdown', 'cinemaDropdown', 'genreDropdown', 'versionDropdown', 'specialsDropdown'].forEach(id => document.getElementById(id)?.classList.add('hidden')); });
         document.querySelectorAll('.relative').forEach(el => el.addEventListener('click', e => e.stopPropagation()));
     }
     
     function renderFilteredResults() {
-        const filters = { search: elements.searchInput.value.toLowerCase(), cinema: state.selectedCinemas, genres: state.selectedGenres, versions: state.selectedVersions, specials: state.selectedSpecials, time: elements.timeFilterContainer.querySelector(':checked')?.value || 'all', quickDate: document.querySelector('input[name="quickDate"]:checked')?.value || 'all' };
+        const filters = { titles: state.selectedTitles, cinema: state.selectedCinemas, genres: state.selectedGenres, versions: state.selectedVersions, specials: state.selectedSpecials, time: elements.timeFilterContainer.querySelector(':checked')?.value || 'all', quickDate: document.querySelector('input[name="quickDate"]:checked')?.value || 'all' };
         state.currentlyFilteredSessions = state.allSessions.filter(item => {
             const sessionTime = new Date(item.session.startTime); const sessionHour = sessionTime.getHours(); const itemFormats = item.session.formats || []; const itemGenre = item.film.mainLabel; const allVersionFilters = [...filters.versions, ...filters.specials];
             const inQuickRange = (() => {
                 const q = filters.quickDate; if (q === 'all') return true; const dayStart = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate()); const today = dayStart(new Date()); const sessionDay = dayStart(sessionTime); if (q === 'today') return sessionDay.getTime() === today.getTime(); if (q === 'tomorrow') { const t = new Date(today); t.setDate(t.getDate() + 1); return sessionDay.getTime() === t.getTime(); } const getWeekRange = (base, weekOffset = 0) => { const d = new Date(base); d.setDate(d.getDate() + weekOffset * 7); const day = d.getDay(); const monday = new Date(d); monday.setDate(d.getDate() - ((day + 6) % 7)); monday.setHours(0,0,0,0); const sunday = new Date(monday); sunday.setDate(monday.getDate() + 6); sunday.setHours(23,59,59,999); return { start: monday, end: sunday }; }; if (q === 'this_week') { const range = getWeekRange(new Date(), 0); return sessionTime >= range.start && sessionTime <= range.end; } if (q === 'next_week') { const range = getWeekRange(new Date(), 1); return sessionTime >= range.start && sessionTime <= range.end; } return true;
             })();
             if (!inQuickRange) return false;
-            return ((!filters.search || item.film.title.toLowerCase().includes(filters.search)) && (filters.cinema.includes('all') || filters.cinema.includes(item.cinema.name.trim())) && (filters.genres.length === 0 || (itemGenre && filters.genres.includes(itemGenre))) && (allVersionFilters.length === 0 || itemFormats.some(v => allVersionFilters.includes(v))) && !((filters.time === 'morning' && sessionHour >= 12) || (filters.time === 'afternoon' && (sessionHour < 12 || sessionHour >= 17)) || (filters.time === 'evening' && sessionHour < 17)));
+            return ((filters.titles.length === 0 || filters.titles.includes(item.film.title)) && (filters.cinema.includes('all') || filters.cinema.includes(item.cinema.name.trim())) && (filters.genres.length === 0 || (itemGenre && filters.genres.includes(itemGenre))) && (allVersionFilters.length === 0 || itemFormats.some(v => allVersionFilters.includes(v))) && !((filters.time === 'morning' && sessionHour >= 12) || (filters.time === 'afternoon' && (sessionHour < 12 || sessionHour >= 17)) || (filters.time === 'evening' && sessionHour < 17)));
         });
         elements.statusContainer.innerHTML = ''; elements.resultsContainer.innerHTML = '';
         if (state.currentlyFilteredSessions.length === 0) return showStatus('No showtimes match your criteria.', 'info');
@@ -509,7 +515,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function setupMobileNav() {
-        const container = document.getElementById('mobile-nav-container'); const openBtn = document.getElementById('mobile-panel-open-btn'); const closeBtn = document.getElementById('mobile-panel-close-btn'); const scrollTopBtn = document.getElementById('mobile-scroll-top-btn'); const mobileFetchBtn = document.getElementById('mobile-fetch-btn'); const mobileClearCacheBtn = document.getElementById('mobile-clear-cache-btn'); const mobileEmojiInput = document.getElementById('mobile-emoji-input'); const mobileEmojiToggleBtn = document.getElementById('mobile-emoji-toggle-btn');
+        const container = document.getElementById('mobile-nav-container'); const openBtn = document.getElementById('mobile-panel-open-btn'); const closeBtn = document.getElementById('mobile-panel-close-btn'); const scrollTopBtn = document.getElementById('mobile-scroll-top-btn'); const mobileFetchBtn = document.getElementById('mobile-fetch-btn'); const mobileClearCacheBtn = document.getElementById('mobile-clear-cache-btn');
         if (!container || !openBtn || !closeBtn) return;
         const togglePanel = (open) => { container.classList.toggle('open', open); document.body.classList.toggle('no-scroll', open); };
         openBtn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); togglePanel(true); });
@@ -518,8 +524,6 @@ document.addEventListener('DOMContentLoaded', () => {
         scrollTopBtn.addEventListener('click', () => { window.scrollTo({ top: 0, behavior: 'smooth' }); togglePanel(false); });
         mobileFetchBtn.addEventListener('click', () => { elements.fetchBtn?.click(); togglePanel(false); });
         mobileClearCacheBtn.addEventListener('click', () => { elements.clearCacheBtn?.click(); togglePanel(false); });
-        mobileEmojiToggleBtn.addEventListener('click', () => elements.emojiToggleBtn?.click() );
-        mobileEmojiInput.addEventListener('input', () => { elements.emojiInput.value = mobileEmojiInput.value; });
     }
 
     initializeApp();
