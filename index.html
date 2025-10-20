@@ -104,7 +104,7 @@
         .header-control .form-element { height: 36px; padding: 0 0.5rem; }
         .nav-bar { flex-wrap: nowrap; }
         .dropdown-panel { position: absolute; left: 0; right: 0; top: 100%; margin-top: 0.25rem; z-index: 100; }
-        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: var(--bg-color); }
         ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #4b5563; }
@@ -166,6 +166,205 @@
             filter: blur(8px);
             pointer-events: none;
         }
+        
+        .disabled-filter {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        /* --- Timeline Visualization Styles (REDESIGNED) --- */
+        #timeline-wrapper {
+            overflow-x: auto;
+            overflow-y: auto;
+            max-height: 70vh; /* Limit vertical space and enable scrolling */
+            position: relative;
+        }
+        #timeline-layout {
+            display: grid;
+            grid-template-columns: var(--timeline-label-width, 240px) 1fr;
+            gap: 0.5rem;
+        }
+        /* Timeline variables: hours header height and label column width */
+        :root { --timeline-hours-height: 36px; --timeline-label-width: 240px; }
+
+        #timeline-labels, #timeline-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            grid-auto-rows: min-content; /* KEY: Rows size to their content */
+            gap: 2px;
+            /* Reserve space so both label and grid content begin below the hours row */
+            padding-top: var(--timeline-hours-height);
+        }
+
+        /* Position the hours row absolutely so it doesn't push the grid down only on the right column */
+        #timeline-hours {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--timeline-hours-height);
+            display: grid;
+            align-items: center;
+            z-index: 5;
+            pointer-events: none;
+            background: transparent;
+            gap: 0.25rem;
+        }
+        #timeline-labels {
+            position: sticky; /* Stick labels to the left on horizontal scroll */
+            left: 0;
+            align-self: start;
+            background-color: var(--bg-color);
+            z-index: 30; /* keep labels above hours and bars */
+        }
+        .timeline-film-row-wrapper {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 50px;
+            padding: 8px 0;
+        }
+        .timeline-film-row-wrapper:nth-child(odd) {
+            background-color: rgba(31, 41, 55, 0.2);
+        }
+        .timeline-label {
+            padding: 0 8px;
+            font-size: 0.8rem;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        .timeline-label strong {
+            display: block;
+            color: white;
+            font-weight: 600;
+        }
+        .timeline-label .countdown {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-top: 4px;
+        }
+        .timeline-film-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .timeline-cinema-row {
+            display: grid;
+            grid-template-columns: 140px 1fr;
+            align-items: start; /* allow multi-row bar area to expand without centering */
+            gap: 8px;
+            padding: 4px;
+            border-radius: 4px;
+        }
+        .timeline-cinema-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #d1d5db;
+            text-align: right;
+            white-space: normal;
+            overflow: visible;
+            text-overflow: unset;
+            position: sticky;
+            /* Keep cinema names visible at the left edge of the scrolling timeline column */
+            left: calc(8px);
+            z-index: 6; /* above grid background, below bars */
+            background: transparent;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 2px;
+            padding-right: 6px;
+        }
+        .timeline-cinema-name .cinema-name { display: block; }
+        .timeline-cinema-name .cinema-location-small { font-size: 0.7rem; color: #9ca3af; font-style: italic; }
+        /* Each film/cinema row can contain multiple screening rows to avoid overlapping bars */
+        .timeline-bar-rows {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding-left: 4px;
+        }
+        .timeline-bar-row {
+            position: relative;
+            height: 34px;
+            min-height: 28px;
+        }
+        .timeline-cinema-row + .timeline-cinema-row { border-top: 1px solid rgba(255,255,255,0.03); margin-top: 6px; padding-top: 6px; }
+        .timeline-bar {
+            position: absolute;
+            left: var(--timeline-start-percent, 0%);
+            width: var(--timeline-width-percent, 5%);
+            height: 100%;
+            background-color: var(--bar-color, #4b5563);
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: white;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.1s ease-in-out, box-shadow 0.1s ease-in-out;
+            display: flex;
+            align-items: center;
+            padding: 4px 8px;
+            z-index: 12; /* above cinema name but below hover elevation if needed */
+        }
+        .timeline-bar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            z-index: 20;
+        }
+        .timeline-bar {
+            position: absolute;
+            left: var(--timeline-start-percent, 0%);
+            width: var(--timeline-width-percent, 5%);
+            height: 100%;
+            background-color: var(--bar-color, #4b5563);
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: white;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.1s ease-in-out, box-shadow 0.1s ease-in-out;
+            display: flex;
+            align-items: center;
+            padding: 4px 8px;
+        }
+        .timeline-bar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            z-index: 10;
+        }
+        #timeline-now-indicator {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: #ef4444;
+            z-index: 15; /* below labels but above cinema name */
+            pointer-events: none;
+            box-shadow: 0 0 10px #ef4444;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+        #timeline-tooltip {
+            position: fixed;
+            display: none;
+            background-color: #1f2937;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            font-size: 0.9rem;
+            z-index: 100;
+            pointer-events: none;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+        }
 
         /* --- Cinema Theming Styles --- */
         .cinema-header-wrapper {
@@ -190,13 +389,14 @@
         }
         
         /* Font assignments */
+        .cinema-theme-babylon { font-family: 'Bebas Neue', cursive; letter-spacing: 0.1em; }
         .cinema-theme-babylon-kreuzberg { font-family: 'Cinzel', serif; }
         .cinema-theme-blauer-stern { font-family: 'Oswald', sans-serif; text-transform: uppercase; }
         .cinema-theme-capitol-dahlem { font-family: 'Cormorant Garamond', serif; }
-        .cinema-theme-cinema-paris { font-family: 'Parisienne', cursive; font-size: 3.5rem !important; }
+        .cinema-theme-cinema-paris { font-family: 'Parisienne', cursive; font-size: 3rem !important; }
         .cinema-theme-delphi-filmpalast { font-family: 'Limelight', cursive; letter-spacing: 0.05em; }
         .cinema-theme-delphi-lux { font-family: 'Poppins', sans-serif; text-transform: uppercase; letter-spacing: 0.1em; }
-        .cinema-theme-filmtheater-am-friedrichshain { font-family: 'Anton', sans-serif; text-transform: uppercase; letter-spacing: 0.05em;}
+        .cinema-theme-filmtheater-am-friedrichshain { font-family: 'Oswald', sans-serif; text-transform: uppercase; letter-spacing: 0.05em;}
         .cinema-theme-kant-kino { font-family: 'Roboto Slab', serif; }
         .cinema-theme-kino-international { font-family: 'Bebas Neue', cursive; letter-spacing: 0.1em; }
         .cinema-theme-neues-off { font-family: 'Special Elite', cursive; }
@@ -237,7 +437,7 @@
             <nav class="nav-actions nav-desktop" id="primary-controls">
                 <div id="last-updated" class="text-sm text-gray-300 mr-4">Updated: -</div>
                 <button id="fetch-btn" class="header-control bg-gray-800 text-gray-200 hover:bg-amber-500 hover:text-gray-900">Update Listings</button>
-                <button id="clear-cache-btn" class="header-control bg-gray-800 text-gray-200 hover:bg-red-600 hover:text-white ml-3">Clear</button>
+                <button id="clear-cache-btn" class="header-control bg-gray-800 text-gray-200 hover:bg-red-600 hover:text-white ml-3">Clear Listings</button>
                 <button id="toggle-filters-btn" class="header-control bg-gray-800 text-gray-200 ml-4 hover:bg-gray-700">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
                     Filters
@@ -252,14 +452,33 @@
 
     <main id="main-content-wrapper" class="container mx-auto p-4 md:p-6 max-w-7xl">
         <div id="initial-cta" class="glass-panel p-8 mb-6 text-center">
-            <p class="text-lg text-gray-300 mb-6">Welcome! Choose a cinema group to load their program.</p>
-            <div class="flex flex-col md:flex-row justify-center items-center gap-4">
-                 <button id="load-yorck-data" data-source="yorck" class="bg-amber-400 text-gray-900 font-bold py-3 px-8 rounded-lg hover:bg-amber-500 transition-colors duration-200 w-full md:w-auto">Load Yorck Kino Data</button>
-                 <button id="load-bware-data" data-source="bware" class="bg-red-500 text-white font-bold py-3 px-8 rounded-lg hover:bg-red-600 transition-colors duration-200 w-full md:w-auto">Load B-Ware! Ladenkino Data</button>
+            <p class="text-lg text-gray-300 mb-6">Welcome! Load the complete program for Yorck, B-Ware, and Babylon cinemas.</p>
+            <div class="flex justify-center">
+                 <button id="load-all-data" class="bg-amber-400 text-gray-900 font-bold py-3 px-8 rounded-lg hover:bg-amber-500 transition-colors duration-200 w-full md:w-auto">Load All Cinema Data</button>
             </div>
         </div>
 
+        <!-- NEW: Timeline Visualization Container -->
+        <div id="timeline-container" class="hidden glass-panel p-4 md:p-6 mb-6">
+            <h2 class="text-xl font-bold text-white mb-4">Today's Timeline</h2>
+            <div id="timeline-wrapper">
+                <div class="relative" style="min-width: 1200px;">
+                    <div id="timeline-layout">
+                        <div id="timeline-labels"></div>
+                        <div id="timeline-grid-wrapper" class="relative">
+                            <div id="timeline-hours" class="grid grid-cols-14 text-xs text-gray-400 text-center mb-2"></div>
+                            <div id="timeline-grid"></div>
+                            <div id="timeline-now-indicator"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="timeline-tooltip"></div>
+
+
         <div id="status-container" class="text-center my-8"></div>
+        <div id="results-count-container" class="text-center my-4 text-gray-300"></div>
         <div id="results-container"></div>
     </main>
     
@@ -270,8 +489,8 @@
                 <div id="filters-anchor" class="relative -top-2"></div>
                 <label class="block text-sm font-medium text-gray-300 mb-2">Filter by Title</label>
                 <div class="relative">
-                    <button id="titleDropdownButton" type="button" class="w-full text-left form-element" aria-expanded="false">All Films</button>
-                    <div id="titleDropdown" class="dropdown-panel hidden bg-gray-800 rounded-md shadow-lg w-full border border-gray-700">
+                    <button id="titleDropdownButton" data-dropdown-trigger="titleDropdown" type="button" class="w-full text-left form-element" aria-expanded="false">All Films</button>
+                    <div id="titleDropdown" data-dropdown-id="titleDropdown" class="dropdown-panel hidden bg-gray-800 rounded-md shadow-lg w-full border border-gray-700">
                         <div class="p-2 border-b border-gray-700"><input type="text" id="title-search-input" placeholder="Search title..." class="form-element w-full" /></div>
                         <div class="p-2 flex justify-end border-b border-gray-700"><button id="title-clear-selection" class="text-sm text-amber-400 font-semibold hover:text-amber-300 disabled:text-gray-500">Clear</button></div>
                         <ul id="title-list" class="max-h-60 overflow-y-auto text-sm text-gray-200 p-2 space-y-1"></ul>
@@ -281,8 +500,8 @@
             <div>
                 <label class="block text-sm font-medium text-gray-300 mb-2">Filter by Cinema</label>
                 <div class="relative">
-                    <button id="cinemaDropdownButton" type="button" class="w-full text-left form-element" aria-expanded="false">All Cinemas</button>
-                    <div id="cinemaDropdown" class="dropdown-panel hidden bg-gray-800 rounded-md shadow-lg w-full border border-gray-700">
+                    <button id="cinemaDropdownButton" data-dropdown-trigger="cinemaDropdown" type="button" class="w-full text-left form-element" aria-expanded="false">All Cinemas</button>
+                    <div id="cinemaDropdown" data-dropdown-id="cinemaDropdown" class="dropdown-panel hidden bg-gray-800 rounded-md shadow-lg w-full border border-gray-700">
                         <div class="p-2 border-b border-gray-700"><input type="text" id="cinema-search-input" placeholder="Search cinema..." class="form-element w-full" /></div>
                         <div class="p-2 flex justify-end border-b border-gray-700"><button id="cinema-clear-selection" class="text-sm text-amber-400 font-semibold hover:text-amber-300 disabled:text-gray-500">Clear</button></div>
                         <ul id="cinema-list" class="max-h-60 overflow-y-auto text-sm text-gray-200 p-2 space-y-1"></ul>
@@ -292,8 +511,8 @@
             <div>
                 <label class="block text-sm font-medium text-gray-300 mb-2">Filter by Genre</label>
                 <div class="relative">
-                    <button id="genreDropdownButton" type="button" class="w-full text-left form-element" aria-expanded="false">All Genres</button>
-                    <div id="genreDropdown" class="dropdown-panel hidden bg-gray-800 rounded-md shadow-lg w-full border border-gray-700">
+                    <button id="genreDropdownButton" data-dropdown-trigger="genreDropdown" type="button" class="w-full text-left form-element" aria-expanded="false">All Genres</button>
+                    <div id="genreDropdown" data-dropdown-id="genreDropdown" class="dropdown-panel hidden bg-gray-800 rounded-md shadow-lg w-full border border-gray-700">
                         <div class="p-2 border-b border-gray-700"><input type="text" id="genre-search-input" placeholder="Search genre..." class="form-element w-full" /></div>
                         <div class="p-2 flex justify-end border-b border-gray-700"><button id="genre-clear-selection" class="text-sm text-amber-400 font-semibold hover:text-amber-300 disabled:text-gray-500">Clear</button></div>
                         <ul id="genre-list" class="max-h-60 overflow-y-auto text-sm text-gray-200 p-2 space-y-1"></ul>
@@ -303,8 +522,8 @@
             <div>
                 <label class="block text-sm font-medium text-gray-300 mb-2">Language Version</label>
                 <div class="relative">
-                    <button id="versionDropdownButton" type="button" class="w-full text-left form-element" aria-expanded="false">All Versions</button>
-                    <div id="versionDropdown" class="dropdown-panel hidden bg-gray-800 rounded-md shadow-lg w-full border border-gray-700">
+                    <button id="versionDropdownButton" data-dropdown-trigger="versionDropdown" type="button" class="w-full text-left form-element" aria-expanded="false">All Versions</button>
+                    <div id="versionDropdown" data-dropdown-id="versionDropdown" class="dropdown-panel hidden bg-gray-800 rounded-md shadow-lg w-full border border-gray-700">
                         <div class="p-2 flex justify-end border-b border-gray-700"><button id="version-clear-selection" class="text-sm text-amber-400 font-semibold hover:text-amber-300 disabled:text-gray-500">Clear</button></div>
                         <ul id="version-list" class="max-h-60 overflow-y-auto text-sm text-gray-200 p-2 space-y-1"></ul>
                     </div>
@@ -313,8 +532,8 @@
             <div>
                 <label class="block text-sm font-medium text-gray-300 mb-2">Special Screenings</label>
                 <div class="relative">
-                    <button id="specialsDropdownButton" type="button" class="w-full text-left form-element" aria-expanded="false">All Specials</button>
-                    <div id="specialsDropdown" class="dropdown-panel hidden bg-gray-800 rounded-md shadow-lg w-full border border-gray-700">
+                    <button id="specialsDropdownButton" data-dropdown-trigger="specialsDropdown" type="button" class="w-full text-left form-element" aria-expanded="false">All Specials</button>
+                    <div id="specialsDropdown" data-dropdown-id="specialsDropdown" class="dropdown-panel hidden bg-gray-800 rounded-md shadow-lg w-full border border-gray-700">
                         <div class="p-2 flex justify-end border-b border-gray-700"><button id="specials-clear-selection" class="text-sm text-amber-400 font-semibold hover:text-amber-300 disabled:text-gray-500">Clear</button></div>
                         <ul id="specials-list" class="max-h-72 overflow-y-auto text-sm text-gray-200 p-2 space-y-1"></ul>
                     </div>
@@ -352,9 +571,10 @@
                     <button id="emoji-toggle-btn" title="Toggle 'Unsure' Emoji" class="header-control bg-gray-700 text-white font-bold hover:bg-gray-600">❓</button>
                 </div>
             </div>
-            <div id="tag-filter-container" class="hidden flex flex-wrap items-center justify-between gap-4 pt-4 mt-4 border-t border-gray-700/50">
+            <div id="clear-filters-container" class="hidden flex flex-wrap items-center justify-between gap-4 pt-4 mt-4 border-t border-gray-700/50">
                 <div id="tag-display-area" class="flex flex-wrap items-center gap-2 flex-grow"></div>
                 <button id="clear-tags-btn" class="header-control bg-gray-700 text-white font-semibold hover:bg-red-600 text-sm" style="height: 36px;">Clear Tags</button>
+                <button id="clear-all-filters-btn" class="header-control bg-gray-700 text-white font-semibold hover:bg-red-600 text-sm" style="height: 36px;">Clear All Filters</button>
             </div>
         </div>
     </div>
@@ -369,20 +589,16 @@
                 </button>
             </header>
             <div class="overflow-y-auto p-4">
-                <div class="grid grid-cols-2 gap-4 mb-6">
-                     <button id="mobile-fetch-btn" class="header-control bg-amber-400 text-gray-900 font-bold hover:bg-amber-500 justify-center">Update Listings</button>
-                    <button id="mobile-clear-cache-btn" class="header-control bg-gray-700 text-white font-semibold hover:bg-red-600 justify-center">Clear</button>
-                </div>
                 <div id="mobile-filters-mount"></div>
             </div>
-            <footer class="p-4 border-t border-gray-700 flex-shrink-0">
-                <button id="mobile-scroll-top-btn" class="w-full header-control bg-gray-800 text-white font-semibold hover:bg-gray-700 justify-center">
-                    Return to Top ↑
-                </button>
+            <footer class="p-4 border-t border-gray-700 grid grid-cols-2 gap-4 flex-shrink-0">
+                <button id="mobile-fetch-btn" class="header-control bg-amber-400 text-gray-900 font-bold hover:bg-amber-500 justify-center">Update Listings</button>
+                <button id="mobile-clear-cache-btn" class="header-control bg-gray-700 text-white font-semibold hover:bg-red-600 justify-center">Clear Listings</button>
             </footer>
         </div>
     </div>
 
+<script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
@@ -397,13 +613,21 @@ document.addEventListener('DOMContentLoaded', () => {
         filtersPanel: document.getElementById('filters-panel'),
         timeFilterContainer: document.getElementById('time-filter'),
         viewToggle: document.getElementById('view-toggle'),
-        tagFilterContainer: document.getElementById('tag-filter-container'),
+        clearFiltersContainer: document.getElementById('clear-filters-container'),
         tagDisplayArea: document.getElementById('tag-display-area'),
         clearTagsBtn: document.getElementById('clear-tags-btn'),
+        clearAllFiltersBtn: document.getElementById('clear-all-filters-btn'),
         toggleFiltersBtn: document.getElementById('toggle-filters-btn'),
         header: document.querySelector('.site-header'),
         mainContent: document.getElementById('main-content-wrapper'),
-        initialCta: document.getElementById('initial-cta')
+        initialCta: document.getElementById('initial-cta'),
+        resultsCountContainer: document.getElementById('results-count-container'),
+        timelineContainer: document.getElementById('timeline-container'),
+        timelineLabels: document.getElementById('timeline-labels'),
+        timelineGrid: document.getElementById('timeline-grid'),
+        timelineHours: document.getElementById('timeline-hours'),
+        timelineNowIndicator: document.getElementById('timeline-now-indicator'),
+        timelineTooltip: document.getElementById('timeline-tooltip')
     };
 
     const state = { 
@@ -411,27 +635,40 @@ document.addEventListener('DOMContentLoaded', () => {
         currentlyFilteredSessions: [], 
         imageObserver: null,
         groupBy: 'film',
-        activeSource: null,
         selectedTitles: [],
         selectedCinemas: ['all'],
         selectedGenres: [],
         selectedVersions: [],
         selectedSpecials: [],
         activeTags: [],
+        nowIndicatorInterval: null
+        , indexes: {
+            titles: [],
+            genres: [],
+            formats: [],
+            cinemas: []
+        }
     };
     
-    // --- Data Sources ---
-    const CORS_PROXY = 'https://corsproxy.io/?';
+    // --- Data Sources & Constants ---
+    const CORS_PROXY = 'https://api.allorigins.win/raw?url=';
     const YORCK_PROGRAM_URL = 'https://www.yorck.de/en/films';
-    const BWARE_API_URL = 'https://www.kinoheld.de/ajax/getShowsForCinemas?cinemaIds[]=108&lang=de';
+    const KINOHELD_CINEMAS = [
+        { id: 108, name: 'b-ware! Ladenkino' },
+        { id: 670, name: 'Babylon' }
+    ];
 
     const VERSION_DEFINITIONS = { 'DF': 'Deutsche Fassung (German Version)', 'OV': 'Originalfassung (Original Version)', 'OmU': 'Original mit Untertiteln (Original with German Subtitles)', 'OmeU': 'Original mit englischen Untertiteln (Original with English Subtitles)' };
     const STANDARD_VERSIONS = ['DF', 'OV', 'OmU', 'OmeU'];
     
+    const SPECIALS_RENAME_MAP = { 'Creepy C': 'Creepy Crypt', 'KF': 'Kinder Film', 'SV': 'Special Event', 'Sneak': 'Sneak Preview' };
+    const YORCK_SPECIALS = ['Creepy C', 'Festival', 'InTheMood', 'KF', 'Lesung', 'Mongay', 'OmdU', 'SV', 'Sneak'];
+
     const COLOR_MAP = { 'DF': { bg: '#3b82f6', text: '#ffffff' }, 'OV': { bg: '#22c55e', text: '#ffffff' }, 'OmU': { bg: '#f97316', text: '#ffffff' }, 'OmeU': { bg: '#a855f7', text: '#ffffff' }, 'OmdU': { bg: '#f97316', text: '#ffffff' }, 'Mongay': { bg: '#ec4899', text: '#ffffff' }, 'Creepy C': { bg: '#ef4444', text: '#ffffff' }, 'InTheMood': { bg: '#14b8a6', text: '#ffffff' }, 'Sneak': { bg: '#0ea5e9', text: '#ffffff' }, 'Classic Sneak': { bg: '#6b7280', text: '#ffffff' }, 'Fetch': { bg: '#d946ef', text: '#ffffff' }, 'Torment Nexus': { bg: '#65a30d', text: '#ffffff' }, 'Ciné Club': { bg: '#0ea5e9', text: '#ffffff' }, 'Queerfilmnacht': { bg: '#c026d3', text: '#ffffff' }, 'FILM & TALK #2030': { bg: '#475569', text: '#ffffff' }, 'Cine en Español': { bg: '#dc2626', text: '#ffffff' }, 'Crafts Club': { bg: '#f59e0b', text: '#ffffff' }, 'Best of Cinema': { bg: '#8b5cf6', text: '#ffffff' }, 'Bis(s) zum Abspann': { bg: '#b91c1c', text: '#ffffff' }, 'Boulevard Noir': { bg: '#4f46e5', text: '#ffffff' }, 'Screen Legends': { bg: '#374151', text: '#ffffff' }, 'SV': { bg: '#78716c', text: '#ffffff' }, 'Festival': { bg: '#d97706', text: '#ffffff' }, 'KF': { bg: '#06b6d4', text: '#ffffff' }, 'Lesung': { bg: '#a16207', text: '#ffffff'}, 'default': { border: '#4b5563', text: '#d1d5db' } };
     const TAG_COLOR_MAP = { year: '#be123c', country: '#0e7490', language: '#581c87', director: '#b45309', cast: '#166534', writer: '#374151' };
 
     const CINEMA_THEMES = {
+        "Babylon": { location: "Mitte", cssClass: "cinema-theme-babylon" },
         "Babylon Kreuzberg": { location: "Kreuzberg", cssClass: "cinema-theme-babylon-kreuzberg" },
         "Blauer Stern": { location: "Pankow", cssClass: "cinema-theme-blauer-stern" },
         "Capitol Dahlem": { location: "Dahlem", cssClass: "cinema-theme-capitol-dahlem" },
@@ -448,6 +685,12 @@ document.addEventListener('DOMContentLoaded', () => {
         "Yorck": { location: "Kreuzberg", cssClass: "cinema-theme-yorck" },
         "b-ware! Ladenkino": { location: "Friedrichshain", cssClass: "cinema-theme-neues-off" }
     };
+    const YORCK_CINEMAS = [
+        "Babylon Kreuzberg", "Blauer Stern", "Capitol Dahlem", "Cinema Paris",
+        "Delphi Filmpalast", "delphi LUX", "Filmtheater am Friedrichshain",
+        "Kant Kino", "Kino International", "Neues Off", "Odeon", "Passage",
+        "Rollberg", "Yorck"
+    ];
 
     function setMainContentMargin() {
         if (elements.header && elements.mainContent) {
@@ -456,28 +699,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function initializeApp() {
+    async function initializeApp() {
         manageFilterPanelLayout();
         setupEventListeners();
         setupImageObserver();
         setMainContentMargin();
 
-        const lastSource = localStorage.getItem('activeSource');
-        if (lastSource) {
-            const storedData = localStorage.getItem(`${lastSource}Data`);
-            if (storedData) {
-                try {
-                    const { data, timestamp } = JSON.parse(storedData);
-                    state.activeSource = lastSource;
-                    state.allSessions = data;
-                    elements.lastUpdatedEl.textContent = `Updated: ${formatTimestamp(timestamp)}`;
-                    elements.initialCta.style.display = 'none';
-                    setupFilters();
-                    renderFilteredResults();
-                } catch (e) {
-                    clearAllData();
-                    showStatus('Could not load stored data. Please update listings.', 'error');
-                }
+        const storedData = await localforage.getItem('allCinemaData');
+        if (storedData) {
+            try {
+                const { data, timestamp } = storedData;
+                state.allSessions = data;
+                buildIndexes();
+                elements.lastUpdatedEl.textContent = `Updated: ${formatTimestamp(timestamp)}`;
+                elements.initialCta.style.display = 'none';
+                setupFilters();
+                renderFilteredResults();
+            } catch (e) {
+                await clearAllData();
+                showStatus('Could not load stored data. Please update listings.', 'error');
             }
         } else {
             showStatus('No data found. Please select a cinema to load the program.', 'info');
@@ -486,16 +726,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function setupEventListeners() {
-        elements.fetchBtn?.addEventListener('click', () => handleFetchRequest(state.activeSource));
+        document.getElementById('load-all-data')?.addEventListener('click', handleFetchRequest);
+        
+        elements.fetchBtn?.addEventListener('click', handleFetchRequest);
         elements.clearCacheBtn?.addEventListener('click', clearAllData);
-        elements.initialCta.querySelectorAll('button[data-source]').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const source = e.currentTarget.dataset.source;
-                elements.initialCta.style.display = 'none';
-                handleFetchRequest(source);
-            });
-        });
-
+        
         elements.emojiToggleBtn?.addEventListener('click', () => {
             elements.emojiInput.value = elements.emojiInput.value.startsWith('❓') ? elements.emojiInput.value.substring(1) : '❓' + elements.emojiInput.value;
         });
@@ -512,6 +747,7 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.resultsContainer?.addEventListener('click', handleTagClick);
         elements.tagDisplayArea?.addEventListener('click', handleRemoveTagClick);
         elements.clearTagsBtn?.addEventListener('click', clearAllTags);
+        elements.clearAllFiltersBtn?.addEventListener('click', clearAllFilters);
         
         elements.toggleFiltersBtn?.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -519,6 +755,65 @@ document.addEventListener('DOMContentLoaded', () => {
             elements.mainContent.classList.toggle('content-inactive', !isHidden);
             setTimeout(setMainContentMargin, 50);
         });
+
+        // Timeline interactions (guarded)
+        elements.timelineContainer?.addEventListener('click', (e) => {
+            const bar = e.target.closest?.('.timeline-bar, .timeline-label');
+            if (bar && bar.dataset?.filmSlug) {
+                const targetElement = document.getElementById(`film-${bar.dataset.filmSlug}`);
+                if (targetElement) targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+
+        // Tooltip show/hide and content (guarded)
+        elements.timelineGrid?.addEventListener('mouseover', (e) => {
+            const bar = e.target.closest?.('.timeline-bar');
+            if (bar && elements.timelineTooltip) {
+                // Build tooltip content safely
+                elements.timelineTooltip.innerHTML = '';
+                const titleEl = document.createElement('strong');
+                titleEl.textContent = bar.dataset.title ? escapeHtml(bar.dataset.title) : '';
+                const br = document.createElement('br');
+                const cinemaEl = document.createElement('div');
+                cinemaEl.textContent = bar.dataset.cinema ? escapeHtml(bar.dataset.cinema) : '';
+                const timeEl = document.createElement('div');
+                timeEl.textContent = bar.dataset.time ? escapeHtml(bar.dataset.time) : '';
+                const formatsEl = document.createElement('div');
+                formatsEl.className = 'text-amber-400';
+                formatsEl.textContent = bar.dataset.formats ? escapeHtml(bar.dataset.formats) : '';
+
+                elements.timelineTooltip.appendChild(titleEl);
+                elements.timelineTooltip.appendChild(br);
+                elements.timelineTooltip.appendChild(cinemaEl);
+                elements.timelineTooltip.appendChild(timeEl);
+                elements.timelineTooltip.appendChild(formatsEl);
+                elements.timelineTooltip.style.display = 'block';
+            }
+        });
+        elements.timelineGrid?.addEventListener('mouseout', () => {
+            if (elements.timelineTooltip) elements.timelineTooltip.style.display = 'none';
+        });
+
+        // Throttle mousemove updates for the tooltip using requestAnimationFrame
+        if (typeof window !== 'undefined') {
+            let pendingTooltipUpdate = false;
+            let lastMouseEvent = null;
+            document.addEventListener('mousemove', (e) => {
+                if (!elements.timelineTooltip || elements.timelineTooltip.style.display !== 'block') return;
+                lastMouseEvent = e;
+                if (!pendingTooltipUpdate) {
+                    pendingTooltipUpdate = true;
+                    window.requestAnimationFrame(() => {
+                        if (lastMouseEvent && elements.timelineTooltip) {
+                            elements.timelineTooltip.style.left = `${lastMouseEvent.clientX + 15}px`;
+                            elements.timelineTooltip.style.top = `${lastMouseEvent.clientY + 15}px`;
+                        }
+                        pendingTooltipUpdate = false;
+                    });
+                }
+            });
+        }
+
 
         window.addEventListener('resize', debounce(() => {
             manageFilterPanelLayout();
@@ -529,13 +824,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
         document.addEventListener('click', (e) => {
             const allDropdowns = document.querySelectorAll('.dropdown-panel');
+            const clickedTrigger = e.target.closest('[data-dropdown-trigger]');
             allDropdowns.forEach(d => {
-                if (!d.contains(e.target) && !d.previousElementSibling.contains(e.target)) {
+                try {
+                    const id = d.getAttribute('data-dropdown-id');
+                    // If the click is on the matching trigger, toggle logic handled elsewhere - skip
+                    if (clickedTrigger && clickedTrigger.getAttribute('data-dropdown-trigger') === id) return;
+                    // If the click was inside this panel, keep it open
+                    if (d.contains(e.target)) return;
+                    d.classList.add('hidden');
+                    // Update associated trigger aria-expanded if present
+                    const assocTrigger = document.querySelector(`[data-dropdown-trigger="${id}"]`);
+                    if (assocTrigger) assocTrigger.setAttribute('aria-expanded', 'false');
+                } catch (err) {
                     d.classList.add('hidden');
                 }
             });
             if (window.innerWidth >= 1023 && elements.filtersPanel && !elements.filtersPanel.classList.contains('hidden')) {
-                if (!elements.filtersPanel.contains(e.target) && !elements.toggleFiltersBtn.contains(e.target)) {
+                const clickedInsideFilters = elements.filtersPanel.contains ? elements.filtersPanel.contains(e.target) : false;
+                const clickedToggleBtn = elements.toggleFiltersBtn && elements.toggleFiltersBtn.contains ? elements.toggleFiltersBtn.contains(e.target) : false;
+                if (!clickedInsideFilters && !clickedToggleBtn) {
                     elements.filtersPanel.classList.add('hidden');
                     elements.mainContent.classList.remove('content-inactive');
                     setTimeout(setMainContentMargin, 50);
@@ -544,16 +852,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function clearAllData() {
-        localStorage.removeItem('yorckData');
-        localStorage.removeItem('bwareData');
-        localStorage.removeItem('activeSource');
+    async function clearAllData() {
+        await localforage.clear();
         elements.initialCta.style.display = 'block';
+        elements.timelineContainer.classList.add('hidden');
         elements.filtersPanel.classList.add('hidden');
         elements.resultsContainer.innerHTML = '';
         elements.lastUpdatedEl.textContent = 'Updated: -';
+        elements.resultsCountContainer.innerHTML = '';
         state.allSessions = [];
-        state.activeSource = null;
+        if (state.nowIndicatorInterval) clearInterval(state.nowIndicatorInterval);
     }
 
     function scrollToTop() {
@@ -563,46 +871,60 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('nav-filters-desktop')?.addEventListener('click', (e) => { e.preventDefault(); scrollToTop(); });
 
     function setupImageObserver() {
+        if (typeof IntersectionObserver === 'undefined') {
+            // Fallback: eager-load all placeholders
+            state.imageObserver = null;
+            document.querySelectorAll('.lazy-load-placeholder').forEach(placeholder => {
+                try {
+                    const img = document.createElement('img');
+                    img.src = placeholder.dataset.src;
+                    img.alt = placeholder.dataset.alt || '';
+                    img.className = 'rounded-md w-full h-full object-cover';
+                    img.onload = () => placeholder.parentNode.replaceChild(img, placeholder);
+                    img.onerror = () => { placeholder.style.backgroundColor = '#374151'; };
+                } catch (err) {
+                    placeholder.style.backgroundColor = '#374151';
+                }
+            });
+            return;
+        }
+
         state.imageObserver = new IntersectionObserver((entries, observer) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     const placeholder = entry.target;
                     const img = document.createElement('img');
                     img.src = placeholder.dataset.src;
-                    img.alt = placeholder.dataset.alt;
+                    img.alt = placeholder.dataset.alt || '';
                     img.className = 'rounded-md w-full h-full object-cover';
                     img.onload = () => placeholder.parentNode.replaceChild(img, placeholder);
-                    img.onerror = () => { placeholder.style.backgroundColor = '#374151'; }
-                    observer.unobserve(placeholder);
+                    img.onerror = () => { placeholder.style.backgroundColor = '#374151'; };
+                    try { observer.unobserve(placeholder); } catch (err) { /* ignore */ }
                 }
             });
         }, { rootMargin: "300px 0px" });
     }
     
     // --- Main Fetch Dispatcher ---
-    async function handleFetchRequest(source) {
-        if (!source) {
-            showStatus('No cinema source selected. Please choose one from the main page.', 'error');
-            return;
-        }
-        showStatus(`Fetching listings for ${source}...`, 'loading');
+    async function handleFetchRequest() {
+        showStatus('Fetching data from all cinemas...', 'loading');
         if (elements.fetchBtn) { elements.fetchBtn.disabled = true; elements.fetchBtn.textContent = 'Updating...'; }
+        elements.initialCta.style.display = 'none';
 
         try {
-            let data;
-            if (source === 'yorck') {
-                data = await fetchYorckData();
-            } else if (source === 'bware') {
-                data = await fetchBWareData();
-            } else {
-                throw new Error('Unknown data source');
-            }
+            const fetchPromises = [fetchYorckData()];
+            KINOHELD_CINEMAS.forEach(cinema => {
+                fetchPromises.push(fetchKinoheldData(cinema.id, cinema.name));
+            });
 
-            state.allSessions = data;
-            state.activeSource = source;
+            const results = await Promise.all(fetchPromises);
+            const combinedData = results.flat();
+            state.allSessions = combinedData;
+            buildIndexes();
+            
             const timestamp = new Date().toISOString();
-            localStorage.setItem(`${source}Data`, JSON.stringify({ data, timestamp }));
-            localStorage.setItem('activeSource', source);
+            
+            await localforage.setItem('allCinemaData', { data: combinedData, timestamp });
 
             if (elements.lastUpdatedEl) elements.lastUpdatedEl.textContent = `Updated: ${formatTimestamp(timestamp)}`;
             showStatus('Listings updated successfully!', 'success');
@@ -618,21 +940,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // --- B-Ware! Ladenkino Data Fetching & Processing ---
-    async function fetchBWareData() {
-        const response = await fetch(`${CORS_PROXY}${encodeURIComponent(BWARE_API_URL)}`);
-        if (!response.ok) throw new Error(`Network error: ${response.status}`);
+    // --- Kinoheld Data Fetching & Processing ---
+    async function fetchKinoheldData(cinemaId, cinemaName) {
+        const url = `https://www.kinoheld.de/ajax/getShowsForCinemas?cinemaIds[]=${cinemaId}&lang=en`;
+        const response = await fetch(`${CORS_PROXY}${encodeURIComponent(url)}`);
+        if (!response.ok) throw new Error(`Network error (${cinemaName}): ${response.status}`);
         const rawData = await response.json();
-        return processBWareData(rawData);
+        return processKinoheldData(rawData, cinemaName);
     }
 
-    function processBWareData(data) {
+    function processKinoheldData(data, cinemaName) {
         const moviesMap = new Map();
         for (const movieId in data.movies) {
             const movieData = data.movies[movieId];
             const film = {
                 title: movieData.name,
-                slug: movieData.id,
+                slug: `kinoheld-${movieData.id}`,
                 runtime: movieData.duration,
                 tagline: movieData.short_description,
                 mainLabel: movieData.genres?.[0]?.name,
@@ -644,19 +967,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     country: movieData.productionCountries?.join(', '),
                     year: movieData.released ? new Date(movieData.released).getFullYear() : null,
                     originalLanguage: null,
-                    writers: null // Explicitly set writers to null
+                    writers: null
                 }
             };
             moviesMap.set(movieId, film);
         }
 
         const auditoriumMap = {
-            1267: "Saal 1: Romy Royal",
-            2705: "Saal 2: Petit Titan",
-            2707: "Saal 3: Wohnzimmer",
-            3267: "FMP",
-            3387: "vor wien",
-            3439: "Prinzessinnengärten"
+            1267: "Saal 1: Romy Royal", 2705: "Saal 2: Petit Titan", 2707: "Saal 3: Wohnzimmer",
+            3267: "FMP", 3387: "vor wien", 3439: "Prinzessinnengärten"
         };
 
         return data.shows.map(show => {
@@ -666,7 +985,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 formats: show.flags.map(f => f.name)
             };
             const cinema = {
-                name: 'b-ware! Ladenkino',
+                name: cinemaName,
                 auditorium: auditoriumMap[show.auditoriumId] || 'Unknown Saal'
             };
             return { film, session, cinema };
@@ -675,9 +994,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Yorck Kino Data Fetching & Processing ---
     async function fetchYorckData() {
-        showStatus('Fetching film listings...', 'loading');
+        showStatus('Fetching Yorck film listings...', 'loading');
         const response = await fetch(`${CORS_PROXY}${encodeURIComponent(YORCK_PROGRAM_URL)}`);
-        if (!response.ok) throw new Error(`Network error: ${response.status}`);
+        if (!response.ok) throw new Error(`Network error (Yorck): ${response.status}`);
         
         const htmlText = await response.text();
         const doc = new DOMParser().parseFromString(htmlText, 'text/html');
@@ -690,7 +1009,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, {}));
         
         const detailPromises = uniqueFilms.map((film, index) => {
-            showStatus(`Fetching details for ${film.fields.title} (${index + 1}/${uniqueFilms.length})...`, 'loading');
+            showStatus(`Fetching Yorck details for ${film.fields.title} (${index + 1}/${uniqueFilms.length})...`, 'loading');
             return fetchFilmDetails(film.fields.slug);
         });
 
@@ -744,9 +1063,183 @@ document.addEventListener('DOMContentLoaded', () => {
             })).filter(item => item.cinema)
         );
     }
+
+    function buildIndexes() {
+        try {
+            const titles = [...new Set(state.allSessions.map(s => s.film.title))].sort();
+            const genres = [...new Set(state.allSessions.map(s => s.film.mainLabel).filter(g => g))].sort();
+            const formats = [...new Set(state.allSessions.flatMap(s => s.session.formats || []))];
+            const cinemas = [...new Set(state.allSessions.map(s => s.cinema.name.trim()))].sort();
+            state.indexes.titles = titles;
+            state.indexes.genres = genres;
+            state.indexes.formats = formats;
+            state.indexes.cinemas = cinemas;
+        } catch (err) {
+            console.warn('Failed to build indexes', err);
+        }
+    }
+    function escapeHtml(input) {
+        if (input === null || input === undefined) return '';
+        return String(input)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
     
-    // --- Common Functions (mostly unchanged) ---
+    // --- Filter Setup & Logic ---
     function formatTimestamp(isoString) { try { const d = new Date(isoString); const pad = n => String(n).padStart(2, '0'); return `${d.getFullYear()}.${pad(d.getMonth()+1)}.${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`; } catch (e) { return isoString; } }
+
+    function setupCinemaFilter() {
+    const list = document.getElementById('cinema-list');
+    const button = document.getElementById('cinemaDropdownButton');
+    const dropdown = document.getElementById('cinemaDropdown');
+        if (!list || !button || !dropdown) return;
+
+    const allCinemas = state.indexes.cinemas.length ? state.indexes.cinemas : [...new Set(state.allSessions.map(s => s.cinema.name.trim()))];
+    const yorckCinemas = allCinemas.filter(c => YORCK_CINEMAS.includes(c)).sort();
+    const otherCinemas = allCinemas.filter(c => !YORCK_CINEMAS.includes(c)).sort();
+
+        let html = `
+            <li><label class="flex items-center w-full p-2 rounded-md cursor-pointer hover:bg-gray-700 [&:has(input:checked)]:bg-blue-800/50"><input type="checkbox" id="cinema-all" class="mr-3 w-4 h-4" checked><span class="font-semibold">All Cinemas</span></label></li>
+            <li><label class="flex items-center w-full p-2 rounded-md cursor-pointer hover:bg-gray-700 [&:has(input:checked)]:bg-blue-800/50"><input type="checkbox" id="cinema-group-yorck" class="mr-3 w-4 h-4"><span class="font-semibold">All Yorck Kinos</span></label></li>
+        `;
+        yorckCinemas.forEach(cinema => {
+            const safe = escapeHtml(cinema);
+            html += `<li><label class="flex items-center w-full p-2 rounded-md cursor-pointer hover:bg-gray-700 [&:has(input:checked)]:bg-blue-800/50 pl-8"><input type="checkbox" class="mr-3 w-4 h-4 cinema-yorck" value="${safe}"><span>${safe}</span></label></li>`;
+        });
+        otherCinemas.forEach(cinema => {
+            const safe = escapeHtml(cinema);
+            html += `<li><label class="flex items-center w-full p-2 rounded-md cursor-pointer hover:bg-gray-700 [&:has(input:checked)]:bg-blue-800/50"><input type="checkbox" class="cinema-other" value="${safe}"><span>${safe}</span></label></li>`;
+        });
+        list.innerHTML = html;
+
+        list.addEventListener('change', (e) => {
+            const allCb = document.getElementById('cinema-all');
+            const yorckGroupCb = document.getElementById('cinema-group-yorck');
+            const yorckCbs = [...list.querySelectorAll('.cinema-yorck')];
+            const otherCbs = [...list.querySelectorAll('.cinema-other')];
+
+            if (e.target === allCb) {
+                const isChecked = allCb.checked;
+                yorckGroupCb.checked = isChecked;
+                yorckCbs.forEach(cb => cb.checked = isChecked);
+                otherCbs.forEach(cb => cb.checked = isChecked);
+            } else if (e.target === yorckGroupCb) {
+                yorckCbs.forEach(cb => cb.checked = yorckGroupCb.checked);
+                allCb.checked = false;
+            } else if (yorckCbs.includes(e.target)) {
+                yorckGroupCb.checked = yorckCbs.every(cb => cb.checked);
+                allCb.checked = false;
+            } else { // other cinemas
+                 allCb.checked = false;
+            }
+
+            const selected = [...yorckCbs, ...otherCbs].filter(cb => cb.checked).map(cb => cb.value);
+            state.selectedCinemas = selected.length > 0 ? selected : ['all'];
+            
+            if (state.selectedCinemas.includes('all')) {
+                button.textContent = 'All Cinemas';
+                allCb.checked = true;
+            } else if (selected.length === 1) {
+                button.textContent = selected[0];
+            } else {
+                button.textContent = `${selected.length} selected`;
+            }
+            renderFilteredResults();
+        });
+        
+        document.getElementById('cinema-clear-selection')?.addEventListener('click', (e) => {
+            e.preventDefault(); e.stopPropagation();
+            const allCb = document.getElementById('cinema-all');
+            if (allCb) {
+                allCb.checked = true;
+                allCb.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        });
+        
+        button.addEventListener('click', e => {
+            e.stopPropagation();
+            const isHidden = dropdown.classList.toggle('hidden');
+            button.setAttribute('aria-expanded', String(!isHidden));
+        });
+    }
+
+    function setupSpecialsFilter() {
+    const list = document.getElementById('specials-list');
+    const button = document.getElementById('specialsDropdownButton');
+    const dropdown = document.getElementById('specialsDropdown');
+        if (!list || !button || !dropdown) return;
+
+        const allSpecials = [...new Set(state.allSessions.flatMap(s => s.session.formats || []))].filter(f => !STANDARD_VERSIONS.includes(f));
+        const yorckSpecials = allSpecials.filter(s => YORCK_SPECIALS.includes(s)).sort();
+        const otherSpecials = allSpecials.filter(s => !YORCK_SPECIALS.includes(s)).sort();
+
+        let html = `
+            <li><label class="flex items-center w-full p-2 rounded-md cursor-pointer hover:bg-gray-700 [&:has(input:checked)]:bg-blue-800/50"><input type="checkbox" id="specials-all" class="mr-3 w-4 h-4"><span class="font-semibold">All Specials</span></label></li>
+            <li><label class="flex items-center w-full p-2 rounded-md cursor-pointer hover:bg-gray-700 [&:has(input:checked)]:bg-blue-800/50"><input type="checkbox" id="specials-group-yorck" class="mr-3 w-4 h-4"><span class="font-semibold">All Yorck Specials</span></label></li>
+        `;
+        yorckSpecials.forEach(special => {
+            const displayName = SPECIALS_RENAME_MAP[special] || special;
+            const safeVal = escapeHtml(special);
+            const safeDisplay = escapeHtml(displayName);
+            html += `<li><label class="flex items-center w-full p-2 rounded-md cursor-pointer hover:bg-gray-700 [&:has(input:checked)]:bg-blue-800/50 pl-8"><input type="checkbox" class="mr-3 w-4 h-4 special-yorck" value="${safeVal}"><span>${safeDisplay}</span></label></li>`;
+        });
+        otherSpecials.forEach(special => {
+            const displayName = SPECIALS_RENAME_MAP[special] || special;
+            const safeVal = escapeHtml(special);
+            const safeDisplay = escapeHtml(displayName);
+            html += `<li><label class="flex items-center w-full p-2 rounded-md cursor-pointer hover:bg-gray-700 [&:has(input:checked)]:bg-blue-800/50"><input type="checkbox" class="special-other" value="${safeVal}"><span>${safeDisplay}</span></label></li>`;
+        });
+        list.innerHTML = html;
+
+        list.addEventListener('change', (e) => {
+            const allCb = document.getElementById('specials-all');
+            const yorckGroupCb = document.getElementById('specials-group-yorck');
+            const yorckCbs = [...list.querySelectorAll('.special-yorck')];
+            const otherCbs = [...list.querySelectorAll('.special-other')];
+
+            if (e.target === allCb) {
+                const isChecked = allCb.checked;
+                yorckGroupCb.checked = isChecked;
+                yorckCbs.forEach(cb => cb.checked = isChecked);
+                otherCbs.forEach(cb => cb.checked = isChecked);
+            } else if (e.target === yorckGroupCb) {
+                yorckCbs.forEach(cb => cb.checked = yorckGroupCb.checked);
+                allCb.checked = false;
+            } else if (yorckCbs.includes(e.target)) {
+                yorckGroupCb.checked = yorckCbs.every(cb => cb.checked);
+                allCb.checked = false;
+            } else {
+                 allCb.checked = false;
+            }
+
+            const selected = [...yorckCbs, ...otherCbs].filter(cb => cb.checked).map(cb => cb.value);
+            state.selectedSpecials = selected;
+            
+            if (selected.length === 0) {
+                button.textContent = 'All Specials';
+            } else if (selected.length === 1) {
+                button.textContent = SPECIALS_RENAME_MAP[selected[0]] || selected[0];
+            } else {
+                button.textContent = `${selected.length} selected`;
+            }
+            renderFilteredResults();
+        });
+
+        document.getElementById('specials-clear-selection')?.addEventListener('click', (e) => {
+            e.preventDefault(); e.stopPropagation();
+            list.querySelectorAll('input').forEach(cb => cb.checked = false);
+            list.dispatchEvent(new Event('change', { bubbles: true }));
+        });
+
+        button.addEventListener('click', e => {
+            e.stopPropagation();
+            const isHidden = dropdown.classList.toggle('hidden');
+            button.setAttribute('aria-expanded', String(!isHidden));
+        });
+    }
 
     function setupFilters() {
         const createRadioGroup = (items, name) => items.map((item, index) => `<div><input type="radio" id="${name}-${item.value}" name="${name}" value="${item.value}" class="hidden" ${index === 0 ? 'checked' : ''}><label for="${name}-${item.value}" class="block cursor-pointer rounded-md py-2 px-4 text-center">${item.label}</label></div>`).join('');
@@ -759,46 +1252,35 @@ document.addEventListener('DOMContentLoaded', () => {
         
         elements.viewToggle?.querySelector(`button[data-view="${state.groupBy}"]`)?.classList.add('active');
 
-        const allFormats = [...new Set(state.allSessions.flatMap(s => s.session.formats || []))];
-        const uniqueTitles = [...new Set(state.allSessions.map(s => s.film.title))].sort();
-        const uniqueCinemas = [...new Set(state.allSessions.map(s => s.cinema.name.trim()))].sort();
-        const uniqueGenres = [...new Set(state.allSessions.map(s => s.film.mainLabel).filter(g => g))].sort();
+    const uniqueTitles = state.indexes.titles;
+    const uniqueGenres = state.indexes.genres;
+    const allFormats = state.indexes.formats;
+    const uniqueVersions = STANDARD_VERSIONS.filter(v => allFormats.includes(v));
         
-        let uniqueVersions, uniqueSpecials;
-        if (state.activeSource === 'bware') {
-            uniqueVersions = [...new Set(allFormats.filter(f => ['OmdU', 'OmeU', 'OV'].includes(f)))];
-            uniqueSpecials = allFormats.filter(f => !uniqueVersions.includes(f)).sort();
-        } else {
-            uniqueVersions = STANDARD_VERSIONS.filter(v => allFormats.includes(v));
-            uniqueSpecials = allFormats.filter(f => !STANDARD_VERSIONS.includes(f)).sort();
-        }
+        setupCinemaFilter();
+        setupSpecialsFilter();
 
         const setupDropdown = (options) => {
             const { buttonId, dropdownId, listId, clearId, searchId, stateKey, placeholder, type } = options;
             const button = document.getElementById(buttonId); const dropdown = document.getElementById(dropdownId); const list = document.getElementById(listId); const clearBtn = document.getElementById(clearId); if (!button || !dropdown || !list) return;
             list.innerHTML = '';
-            if (type === 'cinema') { list.innerHTML = `<label for="cinema-all" class="flex items-center w-full p-2 rounded-md cursor-pointer hover:bg-gray-700 [&:has(input:checked)]:bg-blue-800/50"><input type="checkbox" id="cinema-all" class="mr-3 w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500" checked><span class="font-semibold">All Cinemas</span></label>`; }
             options.items.forEach((item, idx) => {
                 const li = document.createElement('li'); const safeId = `${type}-${idx}`; const color = COLOR_MAP[item]?.bg; const colorHtml = color ? `<span class="w-3 h-3 rounded-full mr-2 flex-shrink-0" style="background-color: ${color};"></span>` : '';
-                li.innerHTML = `<label for="${safeId}" class="flex items-center w-full p-2 rounded-md cursor-pointer hover:bg-gray-700 [&:has(input:checked)]:bg-blue-800/50 transition-colors"><input type="checkbox" id="${safeId}" class="mr-3 w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-600 focus:ring-2 focus:ring-offset-0" value="${item}">${colorHtml}<span>${item}</span></label>`;
+                const safeVal = escapeHtml(item);
+                li.innerHTML = `<label class="flex items-center w-full p-2 rounded-md cursor-pointer hover:bg-gray-700 [&:has(input:checked)]:bg-blue-800/50 transition-colors"><input type="checkbox" id="${safeId}" class="mr-3 w-4 h-4" value="${safeVal}">${colorHtml}<span>${safeVal}</span></label>`;
                 list.appendChild(li);
             });
             const syncSelection = () => {
-                const checkedItems = Array.from(list.querySelectorAll('input[type="checkbox"]:not(#cinema-all)')).filter(cb => cb.checked).map(cb => cb.value);
-                if (type === 'cinema') { state[stateKey] = checkedItems.length === 0 ? ['all'] : checkedItems; const allCb = document.getElementById('cinema-all'); if (allCb) allCb.checked = (state[stateKey][0] === 'all'); } else { state[stateKey] = checkedItems; }
-                if (state[stateKey].includes('all') || state[stateKey].length === 0) { button.textContent = placeholder; } else if (state[stateKey].length === 1) { button.textContent = state[stateKey][0]; } else { button.textContent = `${state[stateKey].length} selected`; }
-                if (clearBtn) clearBtn.disabled = (type === 'cinema' ? state[stateKey].includes('all') : state[stateKey].length === 0);
+                const checkedItems = Array.from(list.querySelectorAll('input[type="checkbox"]')).filter(cb => cb.checked).map(cb => cb.value);
+                state[stateKey] = checkedItems;
+                if (state[stateKey].length === 0) { button.textContent = placeholder; } else if (state[stateKey].length === 1) { button.textContent = state[stateKey][0]; } else { button.textContent = `${state[stateKey].length} selected`; }
+                if (clearBtn) clearBtn.disabled = state[stateKey].length === 0;
                 renderFilteredResults();
             };
-            list.addEventListener('change', (e) => {
-                if (e.target.type !== 'checkbox') return;
-                if (type === 'cinema') { const allCb = document.getElementById('cinema-all'); if (e.target.id === 'cinema-all' && e.target.checked) { list.querySelectorAll('input:not(#cinema-all)').forEach(cb => cb.checked = false); } else if (e.target.id !== 'cinema-all' && e.target.checked) { if (allCb) allCb.checked = false; } }
-                syncSelection();
-            });
+            list.addEventListener('change', syncSelection);
             if (clearBtn) {
                 clearBtn.addEventListener('click', (e) => {
-                    e.preventDefault(); e.stopPropagation(); list.querySelectorAll('input:not(#cinema-all)').forEach(cb => cb.checked = false);
-                    if (type === 'cinema') { const allCb = document.getElementById('cinema-all'); if(allCb) allCb.checked = true; }
+                    e.preventDefault(); e.stopPropagation(); list.querySelectorAll('input').forEach(cb => cb.checked = false);
                     syncSelection();
                 });
             }
@@ -817,43 +1299,86 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             button.addEventListener('click', e => { 
                 e.stopPropagation();
-                dropdown.classList.toggle('hidden');
-                if (searchInput) searchInput.focus();
+                const isHidden = dropdown.classList.toggle('hidden');
+                button.setAttribute('aria-expanded', String(!isHidden));
+                if (!isHidden && searchInput) searchInput.focus();
             });
             syncSelection();
         };
 
         setupDropdown({ buttonId: 'titleDropdownButton', dropdownId: 'titleDropdown', listId: 'title-list', clearId: 'title-clear-selection', searchId: 'title-search-input', stateKey: 'selectedTitles', placeholder: 'All Films', items: uniqueTitles, type: 'title' });
-        setupDropdown({ buttonId: 'cinemaDropdownButton', dropdownId: 'cinemaDropdown', listId: 'cinema-list', clearId: 'cinema-clear-selection', searchId: 'cinema-search-input', stateKey: 'selectedCinemas', placeholder: 'All Cinemas', items: uniqueCinemas, type: 'cinema' });
         setupDropdown({ buttonId: 'genreDropdownButton', dropdownId: 'genreDropdown', listId: 'genre-list', clearId: 'genre-clear-selection', searchId: 'genre-search-input', stateKey: 'selectedGenres', placeholder: 'All Genres', items: uniqueGenres, type: 'genre' });
         setupDropdown({ buttonId: 'versionDropdownButton', dropdownId: 'versionDropdown', listId: 'version-list', clearId: 'version-clear-selection', stateKey: 'selectedVersions', placeholder: 'All Versions', items: uniqueVersions, type: 'version' });
-        setupDropdown({ buttonId: 'specialsDropdownButton', dropdownId: 'specialsDropdown', listId: 'specials-list', clearId: 'specials-clear-selection', stateKey: 'selectedSpecials', placeholder: 'All Specials', items: uniqueSpecials, type: 'specials' });
         
         elements.filtersPanel.addEventListener('click', e => e.stopPropagation());
     }
 
+    function areFiltersActive() {
+        return state.selectedTitles.length > 0 ||
+               !state.selectedCinemas.includes('all') ||
+               state.selectedGenres.length > 0 ||
+               state.selectedVersions.length > 0 ||
+               state.selectedSpecials.length > 0 ||
+               state.activeTags.length > 0 ||
+               (elements.timeFilterContainer.querySelector(':checked')?.value || 'all') !== 'all' ||
+               (document.querySelector('input[name="quickDate"]:checked')?.value || 'all') !== 'all';
+    }
+
+    function updateAvailableFilterOptions() {
+        const getAvailable = (sessions, keyFn) => new Set(sessions.flatMap(keyFn));
+
+        const updateList = (listId, availableOptions) => {
+            document.querySelectorAll(`#${listId} li`).forEach(li => {
+                const input = li.querySelector('input[value]');
+                if (input && !availableOptions.has(input.value)) {
+                    li.classList.add('disabled-filter');
+                } else {
+                    li.classList.remove('disabled-filter');
+                }
+            });
+        };
+        
+        const baseFilters = { ...state };
+
+        // Update Specials
+        const sessionsForSpecials = state.allSessions.filter(item => 
+            (baseFilters.selectedCinemas.includes('all') || baseFilters.selectedCinemas.includes(item.cinema.name.trim())) &&
+            (baseFilters.selectedTitles.length === 0 || baseFilters.selectedTitles.includes(item.film.title))
+        );
+        const availableSpecials = getAvailable(sessionsForSpecials, item => item.session.formats || []);
+        updateList('specials-list', availableSpecials);
+
+        // Update Genres
+        const sessionsForGenres = state.allSessions.filter(item => 
+            (baseFilters.selectedCinemas.includes('all') || baseFilters.selectedCinemas.includes(item.cinema.name.trim()))
+        );
+        const availableGenres = getAvailable(sessionsForGenres, item => item.film.mainLabel ? [item.film.mainLabel] : []);
+        updateList('genre-list', availableGenres);
+    }
+    
     function renderTags() {
         elements.tagDisplayArea.innerHTML = '';
-        if (state.activeTags.length === 0) {
-            elements.tagFilterContainer.classList.add('hidden');
-            return;
+        if (state.activeTags.length > 0) {
+            elements.clearFiltersContainer.classList.remove('hidden');
         }
-        elements.tagFilterContainer.classList.remove('hidden');
 
         state.activeTags.forEach((tag, index) => {
             const tagEl = document.createElement('div');
             tagEl.className = 'tag-pill';
             tagEl.style.backgroundColor = TAG_COLOR_MAP[tag.type] || '#6b7280';
             tagEl.innerHTML = `
-                <span>${tag.type}: <strong>${tag.value}</strong></span>
+                <span>${escapeHtml(tag.type)}: <strong>${escapeHtml(tag.value)}</strong></span>
                 <button data-index="${index}" title="Remove tag">&times;</button>
             `;
             elements.tagDisplayArea.appendChild(tagEl);
         });
     }
-    
+
     function renderFilteredResults() {
         renderTags();
+        updateAvailableFilterOptions();
+        elements.clearFiltersContainer.classList.toggle('hidden', !areFiltersActive());
+
         const filters = { titles: state.selectedTitles, cinema: state.selectedCinemas, genres: state.selectedGenres, versions: state.selectedVersions, specials: state.selectedSpecials, time: elements.timeFilterContainer.querySelector(':checked')?.value || 'all', quickDate: document.querySelector('input[name="quickDate"]:checked')?.value || 'all' };
         
         const filmMatchesTag = (item, tag) => {
@@ -881,25 +1406,50 @@ document.addEventListener('DOMContentLoaded', () => {
 
             return ((filters.titles.length === 0 || filters.titles.includes(item.film.title)) && (filters.cinema.includes('all') || filters.cinema.includes(item.cinema.name.trim())) && (filters.genres.length === 0 || (itemGenre && filters.genres.includes(itemGenre))) && (allVersionFilters.length === 0 || itemFormats.some(v => allVersionFilters.includes(v))) && !((filters.time === 'morning' && sessionHour >= 12) || (filters.time === 'afternoon' && (sessionHour < 12 || sessionHour >= 17)) || (filters.time === 'evening' && sessionHour < 17)));
         });
-        elements.statusContainer.innerHTML = ''; elements.resultsContainer.innerHTML = '';
-        if (state.currentlyFilteredSessions.length === 0) return showStatus('No showtimes match your criteria.', 'info');
-        const groupBy = state.groupBy; const renderFunction = { date: renderGroupedByDate, cinema: renderGroupedByCinema, film: renderGroupedByFilm }[groupBy]; renderFunction(state.currentlyFilteredSessions);
+
+        elements.statusContainer.innerHTML = ''; 
+        elements.resultsContainer.innerHTML = '';
+
+        if (state.currentlyFilteredSessions.length === 0) {
+            elements.resultsCountContainer.innerHTML = '';
+            elements.timelineContainer.classList.add('hidden');
+            return showStatus('No showtimes match your criteria.', 'info');
+        }
+        
+        const uniqueFilms = new Set(state.currentlyFilteredSessions.map(s => s.film.title));
+        elements.resultsCountContainer.innerHTML = `Found <strong>${uniqueFilms.size}</strong> unique films across <strong>${state.currentlyFilteredSessions.length}</strong> sessions.`;
+
+        const groupBy = state.groupBy; 
+        const renderFunction = { date: renderGroupedByDate, cinema: renderGroupedByCinema, film: renderGroupedByFilm }[groupBy]; 
+        renderFunction(state.currentlyFilteredSessions);
         if (state.imageObserver) { elements.resultsContainer.querySelectorAll('.lazy-load-placeholder').forEach(el => state.imageObserver.observe(el)); }
+        
+        renderTodayTimeline(); // Render timeline with filtered results
     }
     
-    function createShowtimeButtons(sessions, indexMap) { return sessions.sort((a, b) => new Date(a.session.startTime) - new Date(b.session.startTime)).map(item => { const time = new Date(item.session.startTime); const format = (item.session.formats || [])[0]; const color = COLOR_MAP[format]?.bg || COLOR_MAP['default'].border; return `<button class="showtime-btn border-gray-700 bg-gray-900/50 rounded-lg p-2 text-center w-24" style="border-color:${color}" data-session-index="${indexMap.get(item)}"><span class="font-bold text-lg">${time.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</span><span class="block text-xs text-gray-400">${(item.session.formats || []).join(', ')}</span></button>`; }).join(''); }
+    function createShowtimeButtons(sessions, indexMap) { 
+        return sessions.sort((a, b) => new Date(a.session.startTime) - new Date(b.session.startTime)).map(item => { 
+            const time = new Date(item.session.startTime); 
+            const formats = (item.session.formats || []);
+            const mainFormat = formats[0];
+            const color = COLOR_MAP[mainFormat]?.bg || COLOR_MAP['default'].border;
+            const displayFormats = formats.map(f => SPECIALS_RENAME_MAP[f] || f).join(', ');
+            return `<button class="showtime-btn border-gray-700 bg-gray-900/50 rounded-lg p-2 text-center w-24" style="border-color:${color}" data-session-index="${indexMap.get(item)}"><span class="font-bold text-lg">${time.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</span><span class="block text-xs text-gray-400">${displayFormats}</span></button>`; 
+        }).join(''); 
+    }
     
     const createFilmHeaderHTML = (film) => {
-        const posterUrl = film.heroImage?.fields?.image?.fields?.file?.url ? (film.heroImage.fields.image.fields.file.url.startsWith('https:') ? film.heroImage.fields.image.fields.file.url : `https:${film.heroImage.fields.image.fields.file.url}`) : 'https://via.placeholder.com/320x180.png?text=No+Image';
-        const filmUrl = state.activeSource === 'yorck' ? `https://www.yorck.de/en/films/${film.slug}` : `https://www.kinoheld.de/kino-berlin/b-ware-ladenkino/film/${film.slug}`;
+        const posterUrlRaw = film.heroImage?.fields?.image?.fields?.file?.url ? (film.heroImage.fields.image.fields.file.url.startsWith('https:') ? film.heroImage.fields.image.fields.file.url : `https:${film.heroImage.fields.image.fields.file.url}`) : 'https://via.placeholder.com/320x180.png?text=No+Image';
+        const posterUrl = escapeHtml(posterUrlRaw);
+        const filmUrlRaw = String(film.slug).toString().startsWith('kinoheld') ? `https://www.kinoheld.de/kino-berlin/b-ware-ladenkino/film/${String(film.slug).replace('kinoheld-', '')}` : `https://www.yorck.de/en/films/${String(film.slug)}`;
+        const filmUrl = escapeHtml(filmUrlRaw);
 
         const extraDetails = film.extraDetails || {};
         
-        let imageContainerClasses = '';
-        if (state.activeSource === 'bware') {
+        let imageContainerClasses = 'flex-shrink-0 w-full aspect-video sm:w-72 md:w-1/3 sm:aspect-[3/2]';
+        // B-Ware images are portrait
+        if (posterUrl.includes('kinoheld')) {
             imageContainerClasses = 'flex-shrink-0 w-full sm:w-52 aspect-[2/3]';
-        } else { // yorck or default
-            imageContainerClasses = 'flex-shrink-0 w-full aspect-video sm:w-72 md:w-1/3 sm:aspect-[3/2]';
         }
 
         const isTagActive = (type, value) => state.activeTags.some(tag => tag.type === type && tag.value === value);
@@ -911,14 +1461,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             return modifiedListString.split(',').map(item => item.trim()).map(value => {
                 if (value === terfString) {
-                    return `<span class="font-bold text-red-400 p-1">${value}</span>`;
+                    return `<span class="font-bold text-red-400 p-1">${escapeHtml(value)}</span>`;
                 }
                 const isActive = isTagActive(type, value);
                 const tagColor = TAG_COLOR_MAP[type] || '#6b7280';
                 const style = `--tag-color: ${tagColor}`;
                 let classes = 'clickable-tag';
                 if (isActive) classes += ' active';
-                return `<span class="${classes}" data-tag-type="${type}" data-tag-value="${value}" style="${style}">${value}</span>`;
+                return `<span class="${classes}" data-tag-type="${escapeHtml(type)}" data-tag-value="${escapeHtml(value)}" style="${style}">${escapeHtml(value)}</span>`;
             }).join(', ');
         };
 
@@ -968,11 +1518,11 @@ document.addEventListener('DOMContentLoaded', () => {
         return `
             <div class="flex flex-col sm:flex-row gap-6">
                 <a href="${filmUrl}" target="_blank" rel="noopener noreferrer" class="${imageContainerClasses}">
-                    <div class="lazy-load-placeholder" data-src="${posterUrl}" data-alt="${film.title} Poster"></div>
+                    <div class="lazy-load-placeholder" data-src="${posterUrl}" data-alt="${escapeHtml(film.title)} Poster"></div>
                 </a>
                 <div class="flex-grow flex flex-col">
                     <a href="${filmUrl}" target="_blank" rel="noopener noreferrer" class="hover:underline">
-                        <h3 class="text-2xl font-semibold text-white">${film.title}</h3>
+                        <h3 class="text-2xl font-semibold text-white">${escapeHtml(film.title)}</h3>
                     </a>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3 mb-4">
                        ${renderDetailBox('Year', 'year', extraDetails.year)}
@@ -980,7 +1530,7 @@ document.addEventListener('DOMContentLoaded', () => {
                        ${renderMultiDetailBox('Country', 'country', extraDetails.country)}
                        ${renderMultiDetailBox('Language', 'language', extraDetails.originalLanguage)}
                     </div>
-                    <p class="text-sm text-gray-300 mb-4">${extraDetails.longDescription || film.tagline || ''}</p>
+                    <p class="text-sm text-gray-300 mb-4">${escapeHtml(extraDetails.longDescription || film.tagline || '')}</p>
                     <div class="space-y-3 text-sm mt-auto">
                         <div><strong class="font-semibold text-gray-400 block w-24 inline-block">Director:</strong> ${createClickableList('director', extraDetails.director)}</div>
                         <div><strong class="font-semibold text-gray-400 block w-24 inline-block">Cast:</strong> ${createClickableList('cast', extraDetails.fullCast)}</div>
@@ -1003,7 +1553,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const header = createFilmHeaderHTML(film);
                     const showtimes = createShowtimeButtons(sessions, indexMap);
                     return `
-                        <div class="py-4 border-b border-gray-700 last:border-b-0">
+                        <div class="py-4 border-b border-gray-700 last:border-b-0" id="film-${film.slug}">
                             ${header}
                             <div class="flex flex-wrap gap-2 mt-4">${showtimes}</div>
                         </div>
@@ -1067,7 +1617,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const filmSessions = groupedByFilm[filmTitle];
             const filmData = filmSessions[0].film;
             
-            let filmHTML = `<div class="border-b-2 border-amber-400 mt-8 py-4">${createFilmHeaderHTML(filmData)}</div>`;
+            let filmHTML = `<div class="border-b-2 border-amber-400 mt-8 py-4" id="film-${filmData.slug}">${createFilmHeaderHTML(filmData)}</div>`;
     
             const groupedByDate = filmSessions.reduce((acc, item) => {
                 const date = item.session.startTime.split('T')[0];
@@ -1104,6 +1654,256 @@ document.addEventListener('DOMContentLoaded', () => {
     
         elements.resultsContainer.innerHTML = html;
     }
+
+    // --- Timeline Functions (REDESIGNED) ---
+    // Ensure label and grid rows match heights so left and right columns align
+    function alignTimelineRows() {
+        try {
+            const labelsContainer = elements.timelineLabels;
+            const gridContainer = elements.timelineGrid;
+            if (!labelsContainer || !gridContainer) return;
+
+            const labelRows = Array.from(labelsContainer.querySelectorAll('.timeline-film-row-wrapper'));
+            const gridRows = Array.from(gridContainer.querySelectorAll('.timeline-film-row-wrapper'));
+
+            // Reset any explicit heights first
+            labelRows.forEach(r => r.style.height = '');
+            gridRows.forEach(r => r.style.height = '');
+
+            const count = Math.min(labelRows.length, gridRows.length);
+            for (let i = 0; i < count; i++) {
+                const a = labelRows[i];
+                const b = gridRows[i];
+                // Use offsetHeight which includes padding/border
+                const maxH = Math.max(a.offsetHeight, b.offsetHeight);
+                a.style.height = `${maxH}px`;
+                b.style.height = `${maxH}px`;
+            }
+        } catch (err) {
+            // Don't break if alignment fails
+            console.warn('alignTimelineRows failed', err);
+        }
+    }
+    function renderTodayTimeline() {
+        if (state.nowIndicatorInterval) clearInterval(state.nowIndicatorInterval);
+
+        const today = new Date();
+        const todayStr = today.toISOString().split('T')[0];
+        const todaysSessions = state.currentlyFilteredSessions.filter(s => s.session.startTime.startsWith(todayStr));
+
+        if (todaysSessions.length === 0) {
+            elements.timelineContainer.classList.add('hidden');
+            return;
+        }
+        elements.timelineContainer.classList.remove('hidden');
+
+        const TIMELINE_START_HOUR = 10;
+        const TIMELINE_END_HOUR = 24;
+        const totalMinutes = (TIMELINE_END_HOUR - TIMELINE_START_HOUR) * 60;
+
+        let hoursHtml = '';
+        for (let i = TIMELINE_START_HOUR; i < TIMELINE_END_HOUR; i++) {
+            hoursHtml += `<span>${i}:00</span>`;
+        }
+        elements.timelineHours.innerHTML = hoursHtml;
+        elements.timelineHours.style.gridTemplateColumns = `repeat(${TIMELINE_END_HOUR - TIMELINE_START_HOUR}, 1fr)`;
+
+        const byFilm = todaysSessions.reduce((acc, item) => {
+            const key = item.film.slug;
+            if (!acc[key]) acc[key] = [];
+            acc[key].push(item);
+            return acc;
+        }, {});
+
+        const labelsFrag = document.createDocumentFragment();
+        const gridFrag = document.createDocumentFragment();
+
+        Object.keys(byFilm).sort((a, b) => {
+            const aEarliest = Math.min(...byFilm[a].map(s => new Date(s.session.startTime).getTime()));
+            const bEarliest = Math.min(...byFilm[b].map(s => new Date(s.session.startTime).getTime()));
+            return aEarliest - bEarliest;
+        }).forEach((filmSlug) => {
+            const sessions = byFilm[filmSlug];
+            const film = sessions[0].film;
+
+            const labelWrapper = document.createElement('div');
+            labelWrapper.className = 'timeline-film-row-wrapper';
+            
+            const labelDiv = document.createElement('div');
+            labelDiv.className = 'timeline-label';
+            labelDiv.dataset.filmSlug = escapeHtml(filmSlug);
+            const sessionTimes = sessions.map(s => new Date(s.session.startTime).getTime()).join(',');
+            const endTimes = sessions.map(s => new Date(new Date(s.session.startTime).getTime() + (s.film.runtime || 90) * 60000).getTime()).join(',');
+            labelDiv.dataset.sessionTimes = sessionTimes;
+            labelDiv.dataset.endTimes = endTimes;
+            
+            const titleEl = document.createElement('strong');
+            titleEl.textContent = film.title ? escapeHtml(film.title) : '';
+            labelDiv.appendChild(titleEl);
+            const countdown = document.createElement('span');
+            countdown.className = 'countdown';
+            labelDiv.appendChild(countdown);
+            labelWrapper.appendChild(labelDiv);
+            labelsFrag.appendChild(labelWrapper);
+
+            const gridWrapper = document.createElement('div');
+            gridWrapper.className = 'timeline-film-row-wrapper';
+            const filmGroupDiv = document.createElement('div');
+            filmGroupDiv.className = 'timeline-film-group';
+
+            const byCinema = sessions.reduce((acc, s) => { (acc[s.cinema.name.trim()] = acc[s.cinema.name.trim()] || []).push(s); return acc; }, {});
+            
+            Object.keys(byCinema).sort().forEach(cinemaName => {
+                const cinemaSessions = byCinema[cinemaName];
+                const cinemaRow = document.createElement('div');
+                cinemaRow.className = 'timeline-cinema-row';
+
+                const cinemaNameEl = document.createElement('div');
+                cinemaNameEl.className = 'timeline-cinema-name';
+                // Apply theme class if available and show a small location under the name
+                const theme = CINEMA_THEMES[cinemaName.trim()];
+                const themeClass = theme ? theme.cssClass : '';
+                const locationText = theme ? theme.location : '';
+                cinemaNameEl.innerHTML = `<span class="cinema-name ${themeClass}">${escapeHtml(cinemaName)}</span>${locationText ? `<span class="cinema-location-small">${escapeHtml(locationText)}</span>` : ''}`;
+                cinemaRow.appendChild(cinemaNameEl);
+
+                // Create a vertical stack of bar rows so each screening gets its own lane and won't overlap
+                const barRowsContainer = document.createElement('div');
+                barRowsContainer.className = 'timeline-bar-rows';
+
+                // We'll allocate one bar row per screening. For an optimized layout we could bin overlapping times into fewer rows,
+                // but for clarity we give each screening its own row so short-diff screenings don't collide.
+                cinemaSessions.forEach(item => {
+                    const startTime = new Date(item.session.startTime);
+                    const runtime = item.film.runtime || 90;
+
+                    const startMinutes = (startTime.getHours() - TIMELINE_START_HOUR) * 60 + startTime.getMinutes();
+                    if (startMinutes > totalMinutes || startMinutes + runtime < 0) return;
+
+                    const startPercent = (startMinutes / totalMinutes) * 100;
+                    const widthPercent = (runtime / totalMinutes) * 100;
+
+                    const mainFormat = (item.session.formats || [])[0];
+                    const barColor = COLOR_MAP[mainFormat]?.bg || '#4b5563';
+                    const displayFormats = (item.session.formats || []).map(f => SPECIALS_RENAME_MAP[f] || f).join(', ');
+
+                    const row = document.createElement('div');
+                    row.className = 'timeline-bar-row';
+
+                    const bar = document.createElement('div');
+                    bar.className = 'timeline-bar';
+                    bar.style.setProperty('--timeline-start-percent', `${startPercent}%`);
+                    bar.style.setProperty('--timeline-width-percent', `${widthPercent}%`);
+                    bar.style.setProperty('--bar-color', barColor);
+                    bar.dataset.filmSlug = escapeHtml(item.film.slug);
+                    bar.dataset.title = escapeHtml(item.film.title);
+                    bar.dataset.cinema = escapeHtml(item.cinema.name);
+                    bar.dataset.time = escapeHtml(startTime.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }));
+                    bar.dataset.formats = escapeHtml(displayFormats);
+                    bar.textContent = bar.dataset.time;
+
+                    bar.addEventListener('click', () => {
+                        downloadIcsFile(generateIcsContent(item.film, item.session, item.cinema.name), item.film.slug, item.session.startTime);
+                    });
+
+                    row.appendChild(bar);
+                    barRowsContainer.appendChild(row);
+                });
+                cinemaRow.appendChild(barRowsContainer);
+                filmGroupDiv.appendChild(cinemaRow);
+            });
+            gridWrapper.appendChild(filmGroupDiv);
+            gridFrag.appendChild(gridWrapper);
+        });
+
+        elements.timelineLabels.innerHTML = '';
+        elements.timelineLabels.appendChild(labelsFrag);
+        elements.timelineGrid.innerHTML = '';
+        elements.timelineGrid.appendChild(gridFrag);
+    // Align label and grid rows so left and right columns match
+    alignTimelineRows();
+        
+        const updateNowIndicator = () => {
+            const now = new Date();
+            const hours = now.getHours();
+            const minutes = now.getMinutes();
+            if (hours < TIMELINE_START_HOUR || hours >= TIMELINE_END_HOUR) {
+                elements.timelineNowIndicator.style.display = 'none';
+                return 0;
+            } else {
+                elements.timelineNowIndicator.style.display = 'block';
+                const minutesFromStart = (hours - TIMELINE_START_HOUR) * 60 + minutes;
+                const percentOfDay = (minutesFromStart / totalMinutes) * 100;
+                elements.timelineNowIndicator.style.left = `${percentOfDay}%`;
+                return percentOfDay;
+            }
+        };
+
+        const updateTimelineCountdowns = () => {
+            const now = new Date().getTime();
+            document.querySelectorAll('.timeline-label').forEach(label => {
+                const sessionTimes = label.dataset.sessionTimes.split(',').map(Number);
+                const endTimes = label.dataset.endTimes.split(',').map(Number);
+                const countdownEl = label.querySelector('.countdown');
+                if (!countdownEl) return;
+
+                let nextSessionTime = Infinity;
+                let status = 'finished';
+
+                for (let i = 0; i < sessionTimes.length; i++) {
+                    if (now >= sessionTimes[i] && now <= endTimes[i]) {
+                        status = 'playing';
+                        break;
+                    }
+                    if (sessionTimes[i] > now) {
+                        nextSessionTime = Math.min(nextSessionTime, sessionTimes[i]);
+                        status = 'upcoming';
+                    }
+                }
+
+                if (status === 'upcoming') {
+                    const diff = nextSessionTime - now;
+                    const hours = Math.floor(diff / (1000 * 60 * 60));
+                    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                    countdownEl.textContent = `Starts in ${hours > 0 ? `${hours}h ` : ''}${minutes}m`;
+                } else if (status === 'playing') {
+                    countdownEl.textContent = 'Playing now';
+                } else {
+                    countdownEl.textContent = 'Finished for today';
+                }
+            });
+        };
+
+        const percentOfDay = updateNowIndicator();
+        updateTimelineCountdowns();
+        state.nowIndicatorInterval = setInterval(() => {
+            updateNowIndicator();
+            updateTimelineCountdowns();
+            // Periodically ensure rows remain aligned if content changed
+            alignTimelineRows();
+        }, 30000);
+
+        // Auto-scroll to current time
+        const timelineWrapper = document.getElementById('timeline-wrapper');
+        if (timelineWrapper && percentOfDay > 0) {
+            const totalWidth = timelineWrapper.scrollWidth;
+            const indicatorPosition = (percentOfDay / 100) * totalWidth;
+            const visibleWidth = timelineWrapper.clientWidth;
+            const scrollTarget = indicatorPosition - (visibleWidth * 0.15); // Position 15% from left
+            
+            timelineWrapper.scrollTo({
+                left: Math.max(0, scrollTarget),
+                behavior: 'smooth'
+            });
+        }
+
+    // Re-align rows on window resize (debounced)
+    const onResizeAlign = debounce(() => alignTimelineRows(), 120);
+    window.removeEventListener('resize', onResizeAlign);
+    window.addEventListener('resize', onResizeAlign);
+    }
+
+
     function handleShowtimeClick(e) { const btn = e.target.closest('.showtime-btn'); if (!btn) return; e.stopPropagation(); const item = state.currentlyFilteredSessions[parseInt(btn.dataset.sessionIndex, 10)]; if (!item) { console.error('Session data not found'); return; } downloadIcsFile(generateIcsContent(item.film, item.session, item.cinema.name), item.film.slug, item.session.startTime); }
     
     function handleTagClick(e) {
@@ -1142,6 +1942,53 @@ document.addEventListener('DOMContentLoaded', () => {
         renderFilteredResults();
     }
 
+    function clearAllFilters() {
+        // Reset state arrays
+        state.selectedTitles = [];
+        state.selectedCinemas = ['all'];
+        state.selectedGenres = [];
+        state.selectedVersions = [];
+        state.selectedSpecials = [];
+        state.activeTags = [];
+
+        // Reset dropdown UI
+        const dropdowns = ['title', 'genre', 'version'];
+        dropdowns.forEach(type => {
+            const list = document.getElementById(`${type}-list`);
+            if (!list) return;
+            list.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            
+            const button = document.getElementById(`${type}DropdownButton`);
+            const placeholder = { title: 'All Films', genre: 'All Genres', version: 'All Versions'}[type];
+            if (button) button.textContent = placeholder;
+        });
+        
+        // Reset Cinema Filter to 'All Cinemas'
+        const cinemaList = document.getElementById('cinema-list');
+        if (cinemaList) {
+            const allCinemaCb = document.getElementById('cinema-all');
+            if (allCinemaCb) {
+                allCinemaCb.checked = true;
+                allCinemaCb.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        }
+
+        // Reset Specials Filter to none selected
+        const specialsList = document.getElementById('specials-list');
+        if (specialsList) {
+            specialsList.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            specialsList.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+
+        // Reset radio buttons
+        const timeFilter = document.querySelector('input[name="time"][value="all"]');
+        if (timeFilter) timeFilter.checked = true;
+        const dateFilter = document.querySelector('input[name="quickDate"][value="all"]');
+        if (dateFilter) dateFilter.checked = true;
+
+        renderFilteredResults();
+    }
+
     function generateIcsContent(film, session, cinemaName) {
         const startDate = new Date(session.startTime);
         const endDate = new Date(startDate.getTime() + (film.runtime || 90) * 60000);
@@ -1152,7 +1999,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const formatIcsDateWithTZ = (date) => { const pad = (n) => String(n).padStart(2, '0'); return `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}T${pad(date.getHours())}${pad(date.getMinutes())}${pad(date.getSeconds())}`; };
         const escapeIcsText = (text) => String(text || '').replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n');
 
-        const filmUrl = state.activeSource === 'yorck' ? `https://www.yorck.de/en/films/${film.slug}` : `https://www.kinoheld.de/kino-berlin/b-ware-ladenkino/film/${film.slug}`;
+        const filmUrl = film.slug.toString().startsWith('kinoheld') ? `https://www.kinoheld.de/kino-berlin/b-ware-ladenkino/film/${film.slug.replace('kinoheld-', '')}` : `https://www.yorck.de/en/films/${film.slug}`;
 
         let description = `Synopsis: ${escapeIcsText(extra.longDescription || film.tagline)}\\n\\n`;
         if (extra.director) description += `Director: ${escapeIcsText(extra.director)}\\n`;
@@ -1162,7 +2009,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (extra.year) description += `Year: ${escapeIcsText(extra.year)}\\n`;
         if (extra.originalLanguage) description += `Original Language: ${escapeIcsText(extra.originalLanguage)}\\n`;
         description += `Runtime: ${film.runtime || 'N/A'} min\\n`;
-        description += `Version: ${(session.formats || []).join(', ')}\\n\\n`;
+        description += `Version: ${(session.formats || []).map(f => SPECIALS_RENAME_MAP[f] || f).join(', ')}\\n\\n`;
         description += `More Info: ${filmUrl}`;
 
         const vTimezone = ['BEGIN:VTIMEZONE', 'TZID:Europe/Berlin', 'BEGIN:DAYLIGHT', 'TZOFFSETFROM:+0100', 'TZOFFSETTO:+0200', 'TZNAME:CEST', 'DTSTART:19700329T020000', 'RRULE:FREQ=YEARLY;BYDAY=-1SU;BYMONTH=3', 'END:DAYLIGHT', 'BEGIN:STANDARD', 'TZOFFSETFROM:+0200', 'TZOFFSETTO:+0100', 'TZNAME:CET', 'DTSTART:19701025T030000', 'RRULE:FREQ=YEARLY;BYDAY=-1SU;BYMONTH=10', 'END:STANDARD', 'END:VTIMEZONE'].join('\r\n');
@@ -1208,7 +2055,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function setupMobileNav() {
-        const container = document.getElementById('mobile-nav-container'); const openBtn = document.getElementById('mobile-panel-open-btn'); const closeBtn = document.getElementById('mobile-panel-close-btn'); const scrollTopBtn = document.getElementById('mobile-scroll-top-btn'); const mobileFetchBtn = document.getElementById('mobile-fetch-btn'); const mobileClearCacheBtn = document.getElementById('mobile-clear-cache-btn');
+        const container = document.getElementById('mobile-nav-container'); const openBtn = document.getElementById('mobile-panel-open-btn'); const closeBtn = document.getElementById('mobile-panel-close-btn'); const mobileFetchBtn = document.getElementById('mobile-fetch-btn'); const mobileClearCacheBtn = document.getElementById('mobile-clear-cache-btn');
         if (!container || !openBtn || !closeBtn) return;
         const togglePanel = (open) => { 
             container.classList.toggle('open', open); 
@@ -1218,7 +2065,6 @@ document.addEventListener('DOMContentLoaded', () => {
         openBtn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); togglePanel(true); });
         closeBtn.addEventListener('click', () => togglePanel(false));
         container.addEventListener('click', (e) => { if (e.target === container) togglePanel(false); });
-        scrollTopBtn.addEventListener('click', () => { window.scrollTo({ top: 0, behavior: 'smooth' }); togglePanel(false); });
         mobileFetchBtn.addEventListener('click', () => { elements.fetchBtn?.click(); togglePanel(false); });
         mobileClearCacheBtn.addEventListener('click', () => { elements.clearCacheBtn?.click(); togglePanel(false); });
     }
